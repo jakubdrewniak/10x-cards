@@ -10,7 +10,7 @@ create extension if not exists "pgcrypto";
 -- Table: generations
 create table generations (
     id bigserial primary key,
-    user_id uuid not null references auth.users(id) on delete cascade,
+    user_id uuid not null,  -- Removed foreign key constraint for development
     model varchar not null,
     generated_count integer not null,
     accepted_unedited_count integer,
@@ -46,7 +46,7 @@ create table flashcards (
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
     generation_id bigint references generations(id) on delete set null,
-    user_id uuid not null references auth.users(id) on delete cascade
+    user_id uuid not null  -- Removed foreign key constraint for development
 );
 
 -- Enable RLS for flashcards table
@@ -67,7 +67,7 @@ create policy "Allow all operations on flashcards"
 -- Table: generation_error_logs
 create table generation_error_logs (
     id bigserial primary key,
-    user_id uuid not null references auth.users(id) on delete cascade,
+    user_id uuid not null,  -- Removed foreign key constraint for development
     model varchar not null,
     source_text_hash varchar not null,
     source_text_length integer not null check (source_text_length between 1000 and 10000),
