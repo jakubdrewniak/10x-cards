@@ -12,8 +12,8 @@ export interface FlashcardDTO {
   back: FlashcardRow["back"];
   source: "ai-full" | "ai-edited" | "manual";
   generation_id: FlashcardRow["generation_id"];
-  createdAt: FlashcardRow["created_at"];
-  updatedAt: FlashcardRow["updated_at"];
+  created_at: FlashcardRow["created_at"];
+  updated_at: FlashcardRow["updated_at"];
 }
 
 export type Source = "ai-full" | "ai-edited" | "manual";
@@ -70,23 +70,23 @@ export interface AIFlashcardProposalDTO {
 // Response DTO for generate flashcards via AI endpoint
 export interface GenerateFlashcardsResponseDTO {
   generation_id: number;
-  flashcardsProposals: AIFlashcardProposalDTO[];
-  generatedCount: number;
+  flashcards_proposals: AIFlashcardProposalDTO[];
+  generated_count: number;
 }
 
 // DTO for Generation (read model)
 export interface GenerationDTO {
   id: GenerationRow["id"];
-  userId: GenerationRow["user_id"];
+  user_id: GenerationRow["user_id"];
   model: GenerationRow["model"];
-  generatedCount: GenerationRow["generated_count"];
-  acceptedUneditedCount: GenerationRow["accepted_unedited_count"];
-  acceptedEditedCount: GenerationRow["accepted_edited_count"];
-  sourceTextHash: GenerationRow["source_text_hash"];
-  sourceTextLength: GenerationRow["source_text_length"];
-  generationDuration: GenerationRow["generation_duration"];
-  createdAt: GenerationRow["created_at"];
-  updatedAt: GenerationRow["updated_at"];
+  generated_count: GenerationRow["generated_count"];
+  accepted_unedited_count: GenerationRow["accepted_unedited_count"];
+  accepted_edited_count: GenerationRow["accepted_edited_count"];
+  source_text_hash: GenerationRow["source_text_hash"];
+  source_text_length: GenerationRow["source_text_length"];
+  generation_duration: GenerationRow["generation_duration"];
+  created_at: GenerationRow["created_at"];
+  updated_at: GenerationRow["updated_at"];
 }
 
 // Response DTO for list generations
@@ -98,18 +98,18 @@ export interface ListGenerationsResponseDTO {
 // DTO for Generation Error Log
 export interface GenerationErrorLogDTO {
   id: GenerationErrorLogRow["id"];
-  userId: GenerationErrorLogRow["user_id"];
+  user_id: GenerationErrorLogRow["user_id"];
   model: GenerationErrorLogRow["model"];
-  sourceTextHash: GenerationErrorLogRow["source_text_hash"];
-  sourceTextLength: GenerationErrorLogRow["source_text_length"];
-  errorCode: GenerationErrorLogRow["error_code"];
-  errorMessage: GenerationErrorLogRow["error_message"];
-  createdAt: GenerationErrorLogRow["created_at"];
+  source_text_hash: GenerationErrorLogRow["source_text_hash"];
+  source_text_length: GenerationErrorLogRow["source_text_length"];
+  error_code: GenerationErrorLogRow["error_code"];
+  error_message: GenerationErrorLogRow["error_message"];
+  created_at: GenerationErrorLogRow["created_at"];
 }
 
 // Response DTO for list generation error logs
 export interface ListGenerationErrorLogsResponseDTO {
-  errorLogs: GenerationErrorLogDTO[];
+  error_logs: GenerationErrorLogDTO[];
 }
 
 // Generic response DTO for message responses (e.g., update, delete operations)

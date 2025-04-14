@@ -12,7 +12,7 @@ Endpoint ma na celu przyjmowanie długiego tekstu źródłowego i generowanie pr
     - source_text: string (1000-10000 znaków)
 - Request Body: JSON, np.:
   {
-    "source_text": "..."
+    "source_text": "string"
   }
 
 ## 3. Wykorzystywane typy
@@ -28,11 +28,15 @@ Endpoint ma na celu przyjmowanie długiego tekstu źródłowego i generowanie pr
   - Kody: 200 OK lub 201 Created
   - Body:
     {
-      "generation_id": number,
-      "flashcardsProposals": [
-         { "front": "string", "back": "string", "source": "ai-full" }
+      "generation_id": "number",
+      "flashcards_proposals": [
+        {
+          "front": "string",
+          "back": "string",
+          "source": "ai-full"
+        }
       ],
-      "generatedCount": number
+      "generated_count": "number"
     }
 - Błędy:
   - 400 Bad Request dla nieprawidłowych danych wejściowych
@@ -70,4 +74,5 @@ Endpoint ma na celu przyjmowanie długiego tekstu źródłowego i generowanie pr
 5. Wywołanie serwisu AI w celu generowania fiszek (integracja z Openrouter.ai lub innym dostawcą).
 6. Przetworzenie odpowiedzi serwisu AI i utworzenie propozycji fiszek (AIFlashcardProposalDTO).
 7. Opcjonalne zapisanie wygenerowanych fiszek w bazie danych (tabela flashcards) lub zwrócenie ich w odpowiedzi.
+
 */ 

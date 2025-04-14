@@ -29,8 +29,8 @@
            "back": "string",
            "source": "ai-full" | "ai-edited" | "manual",
            "generation_id": "number" | "null",
-           "createdAt": "timestamp",
-           "updatedAt": "timestamp"
+           "created_at": "timestamp",
+           "updated_at": "timestamp"
          }
        ],
        "pagination": { "page": 1, "limit": 10, "total": 100 }
@@ -73,8 +73,8 @@
            "back": "string",
            "source": "manual" | "ai-full" | "ai-edited",
            "generation_id": "number" | "null",
-           "createdAt": "timestamp",
-           "updatedAt": "timestamp"
+           "created_at": "timestamp",
+           "updated_at": "timestamp"
          }
        ]
      }
@@ -147,7 +147,7 @@
      ```json
      {
        "generation_id": "number",
-       "flashcardsProposals": [
+       "flashcards_proposals": [
          {
            "id": "number",
            "front": "string",
@@ -172,16 +172,16 @@
        "data": [
          {
            "id": "number",
-           "userId": "uuid",
+           "user_id": "uuid",
            "model": "string",
-           "generatedCount": "number",
-           "acceptedUneditedCount": "number",
-           "acceptedEditedCount": "number",
-           "sourceTextHash": "string",
-           "sourceTextLength": "number",
-           "generationDuration": "number",
-           "createdAt": "timestamp",
-           "updatedAt": "timestamp"
+           "generated_count": "number",
+           "accepted_unedited_count": "number",
+           "accepted_edited_count": "number",
+           "source_text_hash": "string",
+           "source_text_length": "number",
+           "generation_duration": "number",
+           "created_at": "timestamp",
+           "updated_at": "timestamp"
          }
        ],
        "pagination": { "page": 1, "limit": 10, "total": 100 }
@@ -197,16 +197,16 @@
      ```json
      {
        "id": "number",
-       "userId": "uuid",
+       "user_id": "uuid",
        "model": "string",
-       "generatedCount": "number",
-       "acceptedUneditedCount": "number",
-       "acceptedEditedCount": "number",
-       "sourceTextHash": "string",
-       "sourceTextLength": "number",
-       "generationDuration": "number",
-       "createdAt": "timestamp",
-       "updatedAt": "timestamp"
+       "generated_count": "number",
+       "accepted_unedited_count": "number",
+       "accepted_edited_count": "number",
+       "source_text_hash": "string",
+       "source_text_length": "number",
+       "generation_duration": "number",
+       "created_at": "timestamp",
+       "updated_at": "timestamp"
      }
      ```
    - **Success Codes**: 200 OK
