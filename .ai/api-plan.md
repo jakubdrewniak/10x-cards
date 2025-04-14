@@ -134,7 +134,7 @@
 
 1. **Generate Flashcards via AI**
    - **Method**: POST
-   - **URL**: `/flashcards/generate`
+   - **URL**: `/generations`
    - **Description**: Submits source text for AI-based flashcard generation. Creates a new generation record and associated flashcards.
    - **Request JSON**:
      ```json
