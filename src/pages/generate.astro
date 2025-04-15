@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { GenerateFlashcardsPage } from "@/components/generate/GenerateFlashcardsPage";
+
+export const prerender = false;
+---
+
+<Layout title="Generate Flashcards">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Generate Flashcards</h1>
+    <GenerateFlashcardsPage client:load />
+  </main>
+</Layout>
