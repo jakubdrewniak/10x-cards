@@ -26,11 +26,6 @@ export function TextInputArea({ value, onChange, error }: TextInputAreaProps) {
         <span>
           {characterCount.toLocaleString()} / {maxCharacters.toLocaleString()} characters
         </span>
-        <span>
-          {characterCount < minCharacters
-            ? `${(minCharacters - characterCount).toLocaleString()} more characters needed`
-            : ""}
-        </span>
       </div>
 
       {error && (
