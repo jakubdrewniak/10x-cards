@@ -222,7 +222,10 @@ export function GenerateFlashcardsPage() {
         )}
 
         <div className="flex justify-end">
-          <Button onClick={handleGenerateClick} disabled={!!viewModel.errorMessage || viewModel.isLoading}>
+          <Button 
+            onClick={handleGenerateClick} 
+            disabled={viewModel.isLoading || viewModel.inputText.length < 1000 || viewModel.inputText.length > 10000}
+          >
             {viewModel.isLoading ? "Generating..." : "Generate Flashcards"}
           </Button>
         </div>
