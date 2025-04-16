@@ -205,12 +205,6 @@ export function GenerateFlashcardsPage() {
 
         <LoadingIndicator isVisible={viewModel.isLoading} />
 
-        {viewModel.errorMessage && (
-          <Alert variant="destructive">
-            <AlertDescription>{viewModel.errorMessage}</AlertDescription>
-          </Alert>
-        )}
-
         {viewModel.flashcardsProposals.length > 0 && (
           <>
             <AcceptAllButton
