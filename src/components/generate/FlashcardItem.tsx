@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useState } from "react";
-import type { AIFlashcardProposalDTO } from "../../types";
+import type { FlashcardProposal } from "../../types";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Textarea } from "../ui/textarea";
+import { cn } from "../../lib/utils";
 
 interface FlashcardItemProps {
-  flashcard: AIFlashcardProposalDTO & { id: number };
+  flashcard: FlashcardProposal;
   onAccept: () => void;
   onEdit: (front: string, back: string) => void;
   onReject: () => void;
@@ -28,8 +29,29 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
     setIsEditing(false);
   };
 
+  const getCardClassName = () => {
+    const baseClass = "border-2";
+    switch (flashcard.status) {
+      case "rejected":
+        return cn(baseClass, "border-red-500");
+      case "edited":
+        return cn(baseClass, "border-orange-500");
+      case "accepted":
+        return cn(baseClass, "border-green-500");
+      default:
+        return "";
+    }
+  };
+
+  const getButtonVariant = (type: "accept" | "edit" | "reject") => {
+    if (type === "accept" && flashcard.status === "accepted") return "default";
+    if (type === "edit" && flashcard.status === "edited") return "default";
+    if (type === "reject" && flashcard.status === "rejected") return "default";
+    return "outline";
+  };
+
   return (
-    <Card>
+    <Card className={getCardClassName()}>
       <CardContent className="pt-6">
         {isEditing ? (
           <div className="space-y-4">
@@ -63,10 +85,22 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
             <div>
               <h3 className="text-sm font-medium mb-2">Front</h3>
               <p className="text-sm">{flashcard.front}</p>
+              {flashcard.status === "edited" && flashcard.originalFront && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <p className="font-medium">Original:</p>
+                  <p>{flashcard.originalFront}</p>
+                </div>
+              )}
             </div>
             <div>
               <h3 className="text-sm font-medium mb-2">Back</h3>
               <p className="text-sm">{flashcard.back}</p>
+              {flashcard.status === "edited" && flashcard.originalBack && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <p className="font-medium">Original:</p>
+                  <p>{flashcard.originalBack}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -81,13 +115,33 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
           </>
         ) : (
           <>
-            <Button variant="outline" onClick={onReject}>
+            <Button 
+              variant={getButtonVariant("reject")} 
+              onClick={onReject}
+              className={cn(
+                flashcard.status === "rejected" && "bg-red-500 text-white hover:bg-red-600"
+              )}
+            >
               Reject
             </Button>
-            <Button variant="outline" onClick={() => setIsEditing(true)}>
+            <Button 
+              variant={getButtonVariant("edit")} 
+              onClick={() => setIsEditing(true)}
+              className={cn(
+                flashcard.status === "edited" && "bg-orange-500 text-white hover:bg-orange-600"
+              )}
+            >
               Edit
             </Button>
-            <Button onClick={onAccept}>Accept</Button>
+            <Button 
+              variant={getButtonVariant("accept")} 
+              onClick={onAccept}
+              className={cn(
+                flashcard.status === "accepted" && "bg-green-500 text-white hover:bg-green-600"
+              )}
+            >
+              Accept
+            </Button>
           </>
         )}
       </CardFooter>

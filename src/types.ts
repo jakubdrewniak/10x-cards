@@ -116,3 +116,12 @@ export interface ListGenerationErrorLogsResponseDTO {
 export interface MessageResponseDTO {
   message: string;
 }
+
+export type FlashcardStatus = "pending" | "rejected" | "edited" | "accepted";
+
+export interface FlashcardProposal extends AIFlashcardProposalDTO {
+  id: number;
+  status: FlashcardStatus;
+  originalFront?: string;
+  originalBack?: string;
+}

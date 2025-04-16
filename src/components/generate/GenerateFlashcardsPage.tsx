@@ -1,19 +1,18 @@
 import * as React from "react";
 import { useState } from "react";
-import type { AIFlashcardProposalDTO, GenerateFlashcardsResponseDTO, CreateFlashcardsCommand } from "../../types";
+import type { GenerateFlashcardsResponseDTO, FlashcardProposal } from "../../types";
 import { TextInputArea } from "./TextInputArea";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { FlashcardsList } from "./FlashcardsList";
 import { AcceptAllButton } from "./AcceptAllButton";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import { Alert, AlertDescription } from "../ui/alert";
 
 interface GenerateViewModel {
   inputText: string;
   isLoading: boolean;
   errorMessage: string | null;
-  flashcardsProposals: (AIFlashcardProposalDTO & { id: number })[];
+  flashcardsProposals: FlashcardProposal[];
 }
 
 export function GenerateFlashcardsPage() {
@@ -65,6 +64,7 @@ export function GenerateFlashcardsPage() {
         flashcardsProposals: data.flashcards_proposals.map((proposal, index) => ({
           ...proposal,
           id: index + 1,
+          status: "pending",
         })),
       }));
     } catch (error) {
@@ -79,109 +79,60 @@ export function GenerateFlashcardsPage() {
   const handleAcceptAll = async () => {
     if (viewModel.flashcardsProposals.length === 0) return;
 
-    try {
-      const command: CreateFlashcardsCommand = {
-        flashcards: viewModel.flashcardsProposals.map((proposal) => ({
-          front: proposal.front,
-          back: proposal.back,
-          source: "ai-full",
-        })),
-      };
+    setViewModel((prev) => ({
+      ...prev,
+      flashcardsProposals: prev.flashcardsProposals.map((proposal) => ({
+        ...proposal,
+        status: proposal.status === "edited" ? "edited" : "accepted",
+      })),
+    }));
+  };
 
-      const response = await fetch("/api/flashcards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(command),
-      });
+  const handleSave = () => {
+    console.log("All flashcards:", viewModel.flashcardsProposals);
+    const acceptedOrEdited = viewModel.flashcardsProposals.filter(
+      (proposal) => proposal.status === "accepted" || proposal.status === "edited"
+    );
+    console.log("Saving flashcards:", acceptedOrEdited);
+  };
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || "Failed to save flashcards");
-      }
-
-      setViewModel((prev) => ({
-        ...prev,
-        flashcardsProposals: [],
-      }));
-    } catch (error) {
-      setViewModel((prev) => ({
-        ...prev,
-        errorMessage: error instanceof Error ? error.message : "Failed to save flashcards",
-      }));
-    }
+  const areAllProposalsMarked = () => {
+    return viewModel.flashcardsProposals.every((proposal) => proposal.status !== "pending");
   };
 
   const handleAcceptFlashcard = async (id: number) => {
-    const flashcard = viewModel.flashcardsProposals.find((p) => p.id === id);
-    if (!flashcard) return;
-
-    try {
-      const response = await fetch("/api/flashcards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          flashcards: [
-            {
-              front: flashcard.front,
-              back: flashcard.back,
-              source: "ai-full",
-            },
-          ],
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save flashcard");
-      }
-
-      setViewModel((prev) => ({
-        ...prev,
-        flashcardsProposals: prev.flashcardsProposals.filter((p) => p.id !== id),
-      }));
-    } catch (error) {
-      setViewModel((prev) => ({
-        ...prev,
-        errorMessage: error instanceof Error ? error.message : "Failed to save flashcard",
-      }));
-    }
+    setViewModel((prev) => ({
+      ...prev,
+      flashcardsProposals: prev.flashcardsProposals.map((proposal) =>
+        proposal.id === id ? { ...proposal, status: "accepted" } : proposal
+      ),
+    }));
   };
 
   const handleEditFlashcard = async (id: number, front: string, back: string) => {
-    try {
-      const response = await fetch("/api/flashcards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          flashcards: [
-            {
+    setViewModel((prev) => ({
+      ...prev,
+      flashcardsProposals: prev.flashcardsProposals.map((proposal) =>
+        proposal.id === id
+          ? {
+              ...proposal,
               front,
               back,
-              source: "ai-edited",
-            },
-          ],
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save edited flashcard");
-      }
-
-      setViewModel((prev) => ({
-        ...prev,
-        flashcardsProposals: prev.flashcardsProposals.filter((p) => p.id !== id),
-      }));
-    } catch (error) {
-      setViewModel((prev) => ({
-        ...prev,
-        errorMessage: error instanceof Error ? error.message : "Failed to save edited flashcard",
-      }));
-    }
+              status: "edited",
+              originalFront: proposal.status === "pending" ? proposal.front : proposal.originalFront,
+              originalBack: proposal.status === "pending" ? proposal.back : proposal.originalBack,
+            }
+          : proposal
+      ),
+    }));
   };
 
   const handleRejectFlashcard = (id: number) => {
     setViewModel((prev) => ({
       ...prev,
-      flashcardsProposals: prev.flashcardsProposals.filter((p) => p.id !== id),
+      flashcardsProposals: prev.flashcardsProposals.map((proposal) =>
+        proposal.id === id ? { ...proposal, status: "rejected" } : proposal
+      ),
     }));
   };
 
@@ -203,32 +154,44 @@ export function GenerateFlashcardsPage() {
       <div className="space-y-6">
         <TextInputArea value={viewModel.inputText} onChange={handleTextChange} error={viewModel.errorMessage} />
 
+        <div className="flex justify-end">
+          <Button
+            onClick={handleGenerateClick}
+            disabled={viewModel.isLoading || viewModel.inputText.length < 1000 || viewModel.inputText.length > 10000}
+          >
+            {viewModel.isLoading ? "Generating..." : "Generate Flashcards"}
+          </Button>
+        </div>
+
         <LoadingIndicator isVisible={viewModel.isLoading} />
 
         {viewModel.flashcardsProposals.length > 0 && (
           <>
-            <AcceptAllButton
-              onAcceptAll={handleAcceptAll}
-              disabled={false}
-              flashcardsCount={viewModel.flashcardsProposals.length}
-            />
+            <div className="flex items-center gap-4">
+              <AcceptAllButton
+                onAcceptAll={handleAcceptAll}
+                disabled={false}
+                flashcardsCount={viewModel.flashcardsProposals.length}
+              />
+              <Button onClick={handleSave} disabled={!areAllProposalsMarked()} variant="default">
+                Save Flashcards
+              </Button>
+            </div>
+
             <FlashcardsList
               proposals={viewModel.flashcardsProposals}
               onAccept={handleAcceptFlashcard}
               onEdit={handleEditFlashcard}
               onReject={handleRejectFlashcard}
             />
+
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleSave} disabled={!areAllProposalsMarked()} variant="default" size="lg">
+                Save Flashcards
+              </Button>
+            </div>
           </>
         )}
-
-        <div className="flex justify-end">
-          <Button 
-            onClick={handleGenerateClick} 
-            disabled={viewModel.isLoading || viewModel.inputText.length < 1000 || viewModel.inputText.length > 10000}
-          >
-            {viewModel.isLoading ? "Generating..." : "Generate Flashcards"}
-          </Button>
-        </div>
       </div>
     </Card>
   );

@@ -8,7 +8,7 @@ interface AcceptAllButtonProps {
 
 export function AcceptAllButton({ onAcceptAll, disabled, flashcardsCount }: AcceptAllButtonProps) {
   return (
-    <Button onClick={onAcceptAll} disabled={disabled || flashcardsCount === 0} variant="outline" className="w-full">
+    <Button onClick={onAcceptAll} disabled={disabled || flashcardsCount === 0} variant="outline">
       Accept All ({flashcardsCount})
     </Button>
   );
