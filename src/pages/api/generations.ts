@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { APIRoute } from "astro";
 import type { GenerateFlashcardsResponseDTO, GenerateFlashcardsCommand, AIFlashcardProposalDTO } from "../../types";
 import type { SupabaseClient } from "../../db/supabase.client";
+import { OpenRouterService, FLASHCARD_GENERATION_SCHEMA } from "../../lib/openrouter.service";
 
 // Input validation schema
 const generateFlashcardsSchema = z.object({
@@ -14,17 +15,16 @@ const generateFlashcardsSchema = z.object({
 // Dummy user ID for development (will be replaced with actual auth)
 const DUMMY_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 
-// Mock flashcard generation function (to be replaced with real AI service)
-const generateMockFlashcards = (text: string): AIFlashcardProposalDTO[] => {
-  // Extract sentences that look like potential flashcard material
-  const sentences = text.split(/[.!?]/).filter((s) => s.trim().length > 10);
-
-  return sentences.slice(0, 5).map((sentence, idx) => ({
-    front: `Question ${idx + 1}: ${sentence.trim()}?`,
-    back: `Sample answer ${idx + 1} generated from the text content.`,
-    source: "ai-full",
-  }));
-};
+// System prompt for flashcard generation
+const FLASHCARD_SYSTEM_PROMPT = `You are an expert at creating educational flashcards. 
+Your task is to generate high-quality flashcards from the provided text.
+Each flashcard should:
+- Have a clear, concise question on the front
+- Have a comprehensive but focused answer on the back
+- Cover important concepts from the text
+- Be self-contained and make sense on their own
+- Avoid overly simple or trivial content
+Generate 5-10 flashcards depending on the content complexity.`;
 
 export const prerender = false;
 
@@ -35,6 +35,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Parse and validate request body
     const body = await request.json();
     const result = generateFlashcardsSchema.safeParse(body);
+
+    // TODO: Remove debug logs after initial testing
+    console.log("[DEBUG] Request validation:", {
+      success: result.success,
+      errors: !result.success ? result.error.errors : null,
+    });
 
     if (!result.success) {
       return new Response(
@@ -50,6 +56,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const command = result.data as GenerateFlashcardsCommand;
+
+    // TODO: Remove after verifying text processing
+    console.log("[DEBUG] Processing text:", {
+      length: command.source_text.length,
+      preview: command.source_text.substring(0, 100) + "...",
+    });
 
     // Create generation record
     const { data: generation, error: insertError } = await supabase
@@ -74,15 +86,57 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .single();
 
     if (insertError) {
-      console.error("Error inserting generation record:", insertError);
+      // TODO: Improve database error logging
+      console.error("[DEBUG] Database error:", {
+        error: insertError,
+        details: insertError.details,
+      });
       throw new Error("Failed to create generation record");
     }
 
-    // Generate mock flashcards
-    const flashcards_proposals = generateMockFlashcards(command.source_text);
+    // Initialize OpenRouter service
+    const openRouter = new OpenRouterService();
 
-    // Update generation record with count
-    await supabase.from("generations").update({ generated_count: flashcards_proposals.length }).eq("id", generation.id);
+    // Configure for flashcard generation
+    openRouter.setSystemMessage(FLASHCARD_SYSTEM_PROMPT);
+    openRouter.setUserMessage(command.source_text);
+    openRouter.setResponseFormat({
+      type: "json_schema",
+      json_schema: {
+        name: "flashcards",
+        strict: true,
+        schema: FLASHCARD_GENERATION_SCHEMA,
+      },
+    });
+
+    // TODO: Remove after verifying AI setup
+    console.log("[DEBUG] Starting AI generation...");
+
+    // Generate flashcards using AI
+    const startTime = Date.now();
+    const flashcards_proposals = await openRouter.sendChat<AIFlashcardProposalDTO[]>();
+    const generationDuration = Date.now() - startTime;
+
+    // TODO: Remove after verifying AI response
+    console.log("[DEBUG] AI generation complete:", {
+      count: flashcards_proposals.length,
+      duration: generationDuration,
+      firstCard: flashcards_proposals[0]
+        ? {
+            frontPreview: flashcards_proposals[0].front.substring(0, 50) + "...",
+            backLength: flashcards_proposals[0].back.length,
+          }
+        : null,
+    });
+
+    // Update generation record with results
+    await supabase
+      .from("generations")
+      .update({
+        generated_count: flashcards_proposals.length,
+        generation_duration: generationDuration,
+      })
+      .eq("id", generation.id);
 
     const response: GenerateFlashcardsResponseDTO = {
       generation_id: generation.id,
@@ -95,7 +149,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error processing generation request:", error);
+    // TODO: Enhanced error logging
+    console.error("[DEBUG] Critical error:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
+    });
 
     return new Response(
       JSON.stringify({
