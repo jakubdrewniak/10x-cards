@@ -4,6 +4,15 @@ import type { GenerateFlashcardsResponseDTO, GenerateFlashcardsCommand, AIFlashc
 import type { SupabaseClient } from "../../db/supabase.client";
 import { OpenRouterService, FLASHCARD_GENERATION_SCHEMA } from "../../lib/openrouter.service";
 
+// OpenRouter response type
+interface OpenRouterResponse {
+  choices: {
+    message: {
+      content: string;
+    };
+  }[];
+}
+
 // Input validation schema
 const generateFlashcardsSchema = z.object({
   source_text: z
@@ -125,8 +134,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Generate flashcards using AI
     const startTime = Date.now();
-    const flashcards_proposals = await openRouter.sendChat<AIFlashcardProposalDTO[]>();
+    const openRouterResponse = await openRouter.sendChat<OpenRouterResponse>();
     const generationDuration = Date.now() - startTime;
+
+    // Parse the JSON string from the content field
+    const flashcards_proposals = JSON.parse(openRouterResponse.choices[0].message.content) as AIFlashcardProposalDTO[];
 
     // TODO: Remove after verifying AI response
     console.log("[DEBUG] AI generation complete:", {
