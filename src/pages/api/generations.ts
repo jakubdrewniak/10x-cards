@@ -16,15 +16,22 @@ const generateFlashcardsSchema = z.object({
 const DUMMY_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 
 // System prompt for flashcard generation
-const FLASHCARD_SYSTEM_PROMPT = `You are an expert at creating educational flashcards. 
+const FLASHCARD_SYSTEM_PROMPT = `You are an expert at creating educational flashcards.
 Your task is to generate high-quality flashcards from the provided text.
+Each flashcard must follow this exact format:
+{
+  "front": "question text",
+  "back": "answer text",
+  "source": "ai-full"
+}
+
+Return an array of 5-10 flashcards depending on content complexity.
 Each flashcard should:
 - Have a clear, concise question on the front
 - Have a comprehensive but focused answer on the back
 - Cover important concepts from the text
 - Be self-contained and make sense on their own
-- Avoid overly simple or trivial content
-Generate 5-10 flashcards depending on the content complexity.`;
+- Avoid overly simple or trivial content`;
 
 export const prerender = false;
 
@@ -100,6 +107,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Configure for flashcard generation
     openRouter.setSystemMessage(FLASHCARD_SYSTEM_PROMPT);
     openRouter.setUserMessage(command.source_text);
+    openRouter.setModelParameters({
+      temperature: 0.2, // Lower temperature for more consistent output
+      max_tokens: 2048, // Ensure enough tokens for multiple flashcards
+    });
     openRouter.setResponseFormat({
       type: "json_schema",
       json_schema: {
