@@ -29,6 +29,23 @@ interface JsonSchemaValue {
   [key: string]: unknown;
 }
 
+interface OpenRouterMessage {
+  role: string;
+  content: string;
+}
+
+interface OpenRouterPayload {
+  model: string;
+  messages: OpenRouterMessage[];
+  temperature?: number;
+  max_tokens?: number;
+  response_format?: {
+    type: string;
+    schema: JsonSchemaValue;
+  };
+  [key: string]: any;
+}
+
 interface ResponseFormat {
   type: "json_schema";
   json_schema: {
@@ -170,18 +187,26 @@ export class OpenRouterService {
   }
 
   // Helper method to prepare API payload
-  private preparePayload() {
+  private preparePayload(): OpenRouterPayload {
     const messages = [
       { role: "system", content: this.systemMessage },
       { role: "user", content: this.userMessage },
     ];
 
-    return {
+    const payload: OpenRouterPayload = {
       model: this.currentModelName,
       messages,
       ...this.currentModelParameters,
-      ...(this.responseFormat && { response_format: this.responseFormat }),
     };
+
+    if (this.responseFormat) {
+      payload.response_format = {
+        type: "json_schema",
+        schema: this.responseFormat.json_schema.schema,
+      };
+    }
+
+    return payload;
   }
 
   // Simple error logging
