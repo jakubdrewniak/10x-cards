@@ -130,14 +130,14 @@ Następujące funkcjonalności NIE wchodzą w zakres MVP aplikacji 10x-cards:
 ### US-002: Logowanie użytkownika
 **Tytuł:** Logowanie do systemu
 
-**Opis:** Jako zarejestrowany użytkownik, chcę zalogować się do aplikacji, aby uzyskać dostęp do moich fiszek i kontynuować naukę.
+**Opis:** Jako zarejestrowany użytkownik, chcę zalogować się do aplikacji, aby uzyskać dostęp do moich fiszek i kontynuować naukę. Dla niezalogowanych użytkowników opcja logowania jest dostępna poprzez przycisk umieszczony u góry strony.
 
 **Kryteria akceptacji:**
 1. Formularz logowania zawiera pola: email i hasło
 2. Po wprowadzeniu poprawnych danych i kliknięciu przycisku "Zaloguj", system loguje użytkownika
 3. System przekierowuje zalogowanego użytkownika do głównego widoku aplikacji
 4. W przypadku błędnych danych, system wyświetla komunikat o błędzie
-5. Formularz zawiera link do odzyskiwania hasła
+5. Interfejs zawiera widoczny przycisk "Zaloguj" w górnej części strony dla niezalogowanych użytkowników
 
 ### US-003: Wylogowanie użytkownika
 **Tytuł:** Wylogowanie z systemu
@@ -153,16 +153,20 @@ Następujące funkcjonalności NIE wchodzą w zakres MVP aplikacji 10x-cards:
 ### US-004: Generowanie fiszek przez AI
 **Tytuł:** Generowanie fiszek przy pomocy sztucznej inteligencji
 
-**Opis:** Jako zalogowany użytkownik, chcę wkleić tekst do nauki i wygenerować z niego fiszki za pomocą AI, aby zaoszczędzić czas.
+**Opis:** Jako użytkownik, chcę wkleić tekst do nauki i wygenerować z niego fiszki za pomocą AI, aby zaoszczędzić czas. Aplikacja umożliwia korzystanie zarówno przez zalogowanych, jak i niezalogowanych użytkowników – opcje zapisu wygenerowanych fiszek zależą od statusu użytkownika.
 
 **Kryteria akceptacji:**
+0. Użytkownik może generować fiszki zarówno będąc zalogowanym, jak i niezalogowanym
 1. Interfejs zawiera pole tekstowe do wprowadzenia tekstu (1000-10000 znaków)
 2. System informuje o minimalnej i maksymalnej długości tekstu
-3. Użytkownik może wybrać poziom trudności/zaawansowania fiszek w tekscie
+3. Użytkownik może wybrać poziom trudności/zaawansowania fiszek w tekście
 4. System generuje fiszki natychmiastowo po kliknięciu przycisku "Generuj fiszki"
 5. Wygenerowane fiszki są prezentowane użytkownikowi do przeglądu
 6. Każda fiszka ma format "przód-tył" z limitem 200 znaków dla przodu i 500 znaków dla tyłu
 7. System obsługuje generowanie fiszek w języku wprowadzonego tekstu
+8. Dla zalogowanego użytkownika istnieje opcja zapisu wygenerowanych i zaakceptowanych fiszek do bazy
+9. Dla niezalogowanego użytkownika dostępne są opcje eksportu – użytkownik może zapisać wygenerowane fiszki do pliku JSON lub skopiować je do schowka
+10. Niezalogowani użytkownicy nie mają możliwości zapisywania fiszek w bazie danych
 
 ### US-005: Ocena wygenerowanych fiszek
 **Tytuł:** Ocena i akceptacja wygenerowanych fiszek
@@ -171,7 +175,7 @@ Następujące funkcjonalności NIE wchodzą w zakres MVP aplikacji 10x-cards:
 
 **Kryteria akceptacji:**
 1. Dla każdej wygenerowanej fiszki widoczne są przyciski: "Zaakceptuj", "Edytuj", "Odrzuć"
-2. Kliknięcie "Zaakceptuj" dodaje fiszkę do kolekcji użytkownika bez zmian
+2. Kliknięcie "Zaakceptuj" dodaje fiszkę do kolekcji użytkownika bez zmian (dla zalogowanych – zapisywanych w bazie; dla niezalogowanych – poprzez eksport do JSON lub kopiowanie, zgodnie z wybraną opcją)
 3. Kliknięcie "Edytuj" otwiera edytor fiszki, umożliwiający modyfikację zawartości
 4. Po edycji, użytkownik może zaakceptować lub anulować zmiany
 5. Kliknięcie "Odrzuć" usuwa fiszkę z listy wygenerowanych
@@ -245,7 +249,7 @@ Następujące funkcjonalności NIE wchodzą w zakres MVP aplikacji 10x-cards:
 6. Kliknięcie "Tak, usuń" powoduje trwałe usunięcie wszystkich wybranych fiszek
 7. System potwierdza usunięcie fiszek odpowiednim komunikatem
 
-### US-011: Nauka z fiszkami ?
+### US-011: Nauka z fiszkami
 **Tytuł:** Sesja nauki z algorytmem powtórek
 
 **Opis:** Jako zalogowany użytkownik chcę, aby dodane fiszki były dostępne w widoku "Sesja nauki" opartym na zewnętrznym algorytmie, aby móc efektywnie się uczyć (spaced repetition).
