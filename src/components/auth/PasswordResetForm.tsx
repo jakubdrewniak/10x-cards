@@ -39,7 +39,7 @@ export function PasswordResetForm() {
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle>Sprawdź swoją skrzynkę</CardTitle>
-          <CardDescription>Wysłaliśmy instrukcje resetowania hasła na podany adres email.</CardDescription>
+          <CardDescription>Wysłaliśmy link do resetowania hasła na podany adres email.</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button variant="outline" className="w-full" onClick={() => (window.location.href = "/login")}>
@@ -52,9 +52,9 @@ export function PasswordResetForm() {
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Resetuj hasło</CardTitle>
-        <CardDescription>Wprowadź swój adres email, a wyślemy Ci instrukcje resetowania hasła</CardDescription>
+      <CardHeader className="text-center">
+        <CardTitle className="text-[20px]">Resetuj hasło</CardTitle>
+        <CardDescription>Na podany adres email zostanie wysłany link do zresetowania hasła</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -80,7 +80,7 @@ export function PasswordResetForm() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full">
-              Wyślij instrukcje
+              Zresetuj hasło
             </Button>
             <div className="text-sm text-center">
               <a href="/login" className="text-primary hover:underline">

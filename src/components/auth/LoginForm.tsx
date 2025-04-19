@@ -35,7 +35,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-[20px]">Zaloguj się</CardTitle>
       </CardHeader>
