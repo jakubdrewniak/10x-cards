@@ -12,7 +12,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
     email: z.string().email("Nieprawidłowy format adresu email"),
     password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
     confirmPassword: z.string(),
@@ -28,7 +27,6 @@ export function RegisterForm() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -45,8 +43,8 @@ export function RegisterForm() {
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Zarejestruj się</CardTitle>
+      <CardHeader className="text-center">
+        <CardTitle className="text-[20px]">Zarejestruj się</CardTitle>
         <CardDescription>Utwórz nowe konto aby korzystać z aplikacji</CardDescription>
       </CardHeader>
       <Form {...form}>
@@ -57,19 +55,6 @@ export function RegisterForm() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Imię</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jan Kowalski" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="email"
@@ -110,12 +95,12 @@ export function RegisterForm() {
               )}
             />
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col gap-4 w-full">
             <Button type="submit" className="w-full">
               Zarejestruj się
             </Button>
-            <div className="text-sm text-center">
-              <span>Masz już konto? </span>
+            <div className="flex justify-center gap-2 text-sm">
+              <span className="text-muted-foreground">Masz już konto?</span>
               <a href="/login" className="text-primary hover:underline">
                 Zaloguj się
               </a>
