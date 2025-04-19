@@ -1,20 +1,50 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/lib/stores/userStore";
+import type { User, UserState } from "@/lib/stores/userStore";
 
 interface TopBarProps {
-  initialUser: { id: string; email: string | null } | null;
+  initialUser: User | null;
 }
 
 export function TopBar({ initialUser }: TopBarProps) {
-  const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
-  console.log(user);
+  const user = useUserStore((state: UserState) => state.user);
+  const setUser = useUserStore((state: UserState) => state.setUser);
+  const clearUser = useUserStore((state: UserState) => state.clearUser);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (initialUser) {
       setUser(initialUser);
     }
   }, [initialUser, setUser]);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Wystąpił błąd podczas wylogowywania");
+      }
+
+      clearUser();
+      window.location.href = "/login";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,9 +54,12 @@ export function TopBar({ initialUser }: TopBarProps) {
             <span className="font-bold">10x Cards</span>
           </a>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative">
+          {error && <span className="text-sm text-destructive absolute -bottom-8 right-0">{error}</span>}
           {user ? (
-            <Button variant="outline">Wyloguj</Button>
+            <Button variant="outline" onClick={handleLogout} disabled={isLoading}>
+              {isLoading ? "Wylogowywanie..." : "Wyloguj"}
+            </Button>
           ) : (
             <Button variant="outline" asChild>
               <a href="/login">Zaloguj się</a>
