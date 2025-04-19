@@ -27,11 +27,35 @@ export function LoginForm() {
   });
 
   const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   async function onSubmit(data: LoginFormValues) {
     setError(null);
-    // Form submission will be implemented later
-    console.log(data);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Wystąpił błąd podczas logowania");
+      }
+
+      // Przekieruj na stronę główną
+      window.location.href = "/generate";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -80,8 +104,8 @@ export function LoginForm() {
             />
           </CardContent>
           <CardFooter className="flex flex-col gap-4 w-full">
-            <Button type="submit" className="w-full">
-              Zaloguj się
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logowanie..." : "Zaloguj się"}
             </Button>
             <div className="flex justify-center gap-2 text-sm">
               <span className="text-muted-foreground">Nie masz jeszcze konta?</span>
