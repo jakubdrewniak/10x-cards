@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useUserStore } from "@/lib/stores/userStore";
 
 const loginSchema = z.object({
   email: z.string().email("Nieprawidłowy format adresu email"),
@@ -49,8 +50,11 @@ export function LoginForm() {
         throw new Error(result.error || "Wystąpił błąd podczas logowania");
       }
 
+      // Update user store
+      useUserStore.getState().setUser(result.user);
+
       // Przekieruj na stronę główną
-      window.location.href = "/generate";
+      window.location.replace("/generate");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
     } finally {
