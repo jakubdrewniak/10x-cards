@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
@@ -35,13 +35,12 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Zaloguj się</CardTitle>
-        <CardDescription>Wprowadź swoje dane aby się zalogować</CardDescription>
+    <Card>
+      <CardHeader className="text-center">
+        <CardTitle className="text-[20px]">Zaloguj się</CardTitle>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {error && (
               <Alert variant="destructive">
@@ -71,19 +70,21 @@ export function LoginForm() {
                     <Input type="password" {...field} />
                   </FormControl>
                   <FormMessage />
+                  <div className="text-right pb-2">
+                    <a href="/password-reset" className="text-[12px] text-primary hover:underline">
+                      Zapomniałeś hasła?
+                    </a>
+                  </div>
                 </FormItem>
               )}
             />
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col gap-4 w-full">
             <Button type="submit" className="w-full">
               Zaloguj się
             </Button>
-            <div className="text-sm text-center space-x-1">
-              <a href="/password-reset" className="text-primary hover:underline">
-                Zapomniałeś hasła?
-              </a>
-              <span>·</span>
+            <div className="flex justify-center gap-2 text-sm">
+              <span className="text-muted-foreground">Nie masz jeszcze konta?</span>
               <a href="/register" className="text-primary hover:underline">
                 Zarejestruj się
               </a>
