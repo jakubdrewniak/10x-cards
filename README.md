@@ -39,6 +39,14 @@ Manual creation of high-quality educational flashcards is time-consuming, which 
 ### AI
 - [Openrouter.ai](https://openrouter.ai/) - For access to various AI models (OpenAI, Anthropic, Google, etc.)
 
+### Testing
+- [Vitest](https://vitest.dev/) - Main framework for unit and integration tests
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) - For testing React components
+- [Testing Library for Astro](https://testing-library.com/) - For testing Astro components
+- [Playwright](https://playwright.dev/) - For end-to-end testing
+- [Storybook](https://storybook.js.org/) - For visual component testing and documentation
+- [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) - For performance testing
+
 ### CI/CD & Hosting
 - GitHub Actions - For CI/CD pipelines
 - DigitalOcean - For hosting via Docker
