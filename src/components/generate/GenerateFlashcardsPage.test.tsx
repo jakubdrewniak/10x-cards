@@ -46,17 +46,22 @@ describe("GenerateFlashcardsPage", () => {
   });
 
   // 2. Testy generowania fiszek
-  describe("flashcard generation", () => {
+  describe.only("flashcard generation", () => {
     const validText = "a".repeat(1000);
     const mockFlashcards = [
-      { id: 1, front: "Front 1", back: "Back 1", status: "pending" },
-      { id: 2, front: "Front 2", back: "Back 2", status: "pending" },
+      { id: 1, front: "Front 1", back: "Back 1", source: "ai-full" },
+      { id: 2, front: "Front 2", back: "Back 2", source: "ai-full" },
     ];
 
     it("should call API when generate button is clicked", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ flashcards_proposals: mockFlashcards } as GenerateFlashcardsResponseDTO),
+        json: () =>
+          Promise.resolve({
+            flashcards_proposals: mockFlashcards,
+            generation_id: 123,
+            generated_count: mockFlashcards.length,
+          } as GenerateFlashcardsResponseDTO),
       });
 
       render(<GenerateFlashcardsPage />);
@@ -87,14 +92,19 @@ describe("GenerateFlashcardsPage", () => {
       await userEvent.click(generateButton);
 
       await waitFor(() => {
-        expect(screen.getByText("API Error")).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toHaveTextContent("API Error");
       });
     });
 
     it("should handle empty API response", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ flashcards_proposals: [] } as GenerateFlashcardsResponseDTO),
+        json: () =>
+          Promise.resolve({
+            flashcards_proposals: [],
+            generation_id: 123,
+            generated_count: 0,
+          } as GenerateFlashcardsResponseDTO),
       });
 
       render(<GenerateFlashcardsPage />);
@@ -113,14 +123,19 @@ describe("GenerateFlashcardsPage", () => {
   // 3. Testy zarządzania fiszkami
   describe("flashcard management", () => {
     const mockFlashcards = [
-      { id: 1, front: "Front 1", back: "Back 1", status: "pending" },
-      { id: 2, front: "Front 2", back: "Back 2", status: "pending" },
+      { id: 1, front: "Front 1", back: "Back 1", source: "ai-full" },
+      { id: 2, front: "Front 2", back: "Back 2", source: "ai-full" },
     ];
 
     beforeEach(async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ flashcards_proposals: mockFlashcards } as GenerateFlashcardsResponseDTO),
+        json: () =>
+          Promise.resolve({
+            flashcards_proposals: mockFlashcards,
+            generation_id: 123,
+            generated_count: mockFlashcards.length,
+          } as GenerateFlashcardsResponseDTO),
       });
 
       render(<GenerateFlashcardsPage />);
@@ -169,14 +184,19 @@ describe("GenerateFlashcardsPage", () => {
   // 4. Testy funkcji "Accept All"
   describe("accept all functionality", () => {
     const mockFlashcards = [
-      { id: 1, front: "Front 1", back: "Back 1", status: "pending" },
-      { id: 2, front: "Front 2", back: "Back 2", status: "pending" },
+      { id: 1, front: "Front 1", back: "Back 1", source: "ai-full" },
+      { id: 2, front: "Front 2", back: "Back 2", source: "ai-full" },
     ];
 
     beforeEach(async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ flashcards_proposals: mockFlashcards } as GenerateFlashcardsResponseDTO),
+        json: () =>
+          Promise.resolve({
+            flashcards_proposals: mockFlashcards,
+            generation_id: 123,
+            generated_count: mockFlashcards.length,
+          } as GenerateFlashcardsResponseDTO),
       });
 
       render(<GenerateFlashcardsPage />);
@@ -221,14 +241,19 @@ describe("GenerateFlashcardsPage", () => {
   // 5. Testy zapisywania fiszek
   describe("save functionality", () => {
     const mockFlashcards = [
-      { id: 1, front: "Front 1", back: "Back 1", status: "pending" },
-      { id: 2, front: "Front 2", back: "Back 2", status: "pending" },
+      { id: 1, front: "Front 1", back: "Back 1", source: "ai-full" },
+      { id: 2, front: "Front 2", back: "Back 2", source: "ai-full" },
     ];
 
     beforeEach(async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ flashcards_proposals: mockFlashcards } as GenerateFlashcardsResponseDTO),
+        json: () =>
+          Promise.resolve({
+            flashcards_proposals: mockFlashcards,
+            generation_id: 123,
+            generated_count: mockFlashcards.length,
+          } as GenerateFlashcardsResponseDTO),
       });
 
       render(<GenerateFlashcardsPage />);
@@ -284,4 +309,3 @@ describe("GenerateFlashcardsPage", () => {
       );
     });
   });
-});
