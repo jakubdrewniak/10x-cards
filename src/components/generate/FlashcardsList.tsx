@@ -15,17 +15,19 @@ export function FlashcardsList({ proposals, onAccept, onEdit, onReject }: Flashc
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Generated Flashcards ({proposals.length})</h2>
-      <div className="grid gap-4">
+      <ul className="grid gap-4" role="list">
         {proposals.map((proposal) => (
-          <FlashcardItem
-            key={proposal.id}
-            flashcard={proposal}
-            onAccept={() => onAccept(proposal.id)}
-            onEdit={(front, back) => onEdit(proposal.id, front, back)}
-            onReject={() => onReject(proposal.id)}
-          />
+          <li key={proposal.id}>
+            <FlashcardItem
+              key={proposal.id}
+              flashcard={proposal}
+              onAccept={() => onAccept(proposal.id)}
+              onEdit={(front, back) => onEdit(proposal.id, front, back)}
+              onReject={() => onReject(proposal.id)}
+            />
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

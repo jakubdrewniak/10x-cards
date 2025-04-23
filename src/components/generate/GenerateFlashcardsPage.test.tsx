@@ -178,21 +178,29 @@ describe("GenerateFlashcardsPage", () => {
       expect(await screen.findByRole("progressbar")).toBeInTheDocument();
     });
 
-    // it("should handle successful API response", async () => {
-    //   render(<GenerateFlashcardsPage />);
-    //   const textArea = screen.getByRole("textbox");
-    //   const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+    it("should handle successful API response", async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
 
-    //   // Enter valid text and generate
-    //   await userEvent.type(textArea, "a".repeat(1000));
-    //   await userEvent.click(generateButton);
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
 
-    //   // Wait for flashcards to appear
-    //   const flashcardsList = await screen.findByRole("list");
-    //   expect(flashcardsList).toBeInTheDocument();
-    //   expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    //   expect(screen.getAllByRole("listitem")).toHaveLength(2);
-    // });
+      // First check for loading indicator
+      const loadingIndicator = await screen.findByRole("progressbar");
+      expect(loadingIndicator).toBeInTheDocument();
+
+      // Then wait for flashcards to appear
+      const flashcardsList = await screen.findByRole("list");
+      expect(flashcardsList).toBeInTheDocument();
+
+      // Loading indicator should be gone
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+
+      // Check flashcard items
+      expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    });
 
     // it("should handle API error response", async () => {
     //   // Mock failed API response
