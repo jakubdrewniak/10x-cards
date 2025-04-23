@@ -9,7 +9,7 @@ export function LoadingIndicator({ isVisible }: LoadingIndicatorProps) {
   if (!isVisible) return null;
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4 py-4" role="progressbar">
       <div className="flex items-center space-x-4">
         <Skeleton className="h-12 w-12 rounded-full" />
         <div className="space-y-2">
