@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
@@ -18,8 +18,9 @@ describe("GenerateFlashcardsPage", () => {
     it("should show error when text is empty", async () => {
       render(<GenerateFlashcardsPage />);
       const textarea = screen.getByRole("textbox");
+      await userEvent.type(textarea, "aaa");
 
-      await userEvent.type(textarea, "");
+      await userEvent.clear(textarea);
 
       expect(screen.getByText("Please enter some text")).toBeInTheDocument();
     });
@@ -38,7 +39,7 @@ describe("GenerateFlashcardsPage", () => {
       const textarea = screen.getByRole("textbox");
 
       const longText = "a".repeat(10001);
-      await userEvent.type(textarea, longText);
+      fireEvent.change(textarea, { target: { value: longText } });
 
       expect(screen.getByText(/Text cannot exceed 10000 characters/)).toBeInTheDocument();
     });
