@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
 import userEvent from "@testing-library/user-event";
 
@@ -85,7 +85,7 @@ describe("GenerateFlashcardsPage", () => {
       const textArea = getTextArea();
       const longText = "a".repeat(10001);
 
-      await userEvent.type(textArea, longText);
+      fireEvent.change(textArea, { target: { value: longText } });
 
       expect(screen.getByText(/Text cannot exceed 10000 characters/)).toBeInTheDocument();
       expect(getGenerateButton()).toBeDisabled();
