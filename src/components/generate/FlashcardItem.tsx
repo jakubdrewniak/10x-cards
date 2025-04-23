@@ -65,6 +65,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
                 onChange={(e) => setFront(e.target.value)}
                 placeholder="Front side of the flashcard"
                 className="resize-none"
+                data-testid={`edit-front-${flashcard.id}`}
               />
             </div>
             <div>
@@ -77,6 +78,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
                 onChange={(e) => setBack(e.target.value)}
                 placeholder="Back side of the flashcard"
                 className="resize-none"
+                data-testid={`edit-back-${flashcard.id}`}
               />
             </div>
           </div>
@@ -84,7 +86,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-medium mb-2">Front</h3>
-              <p className="text-sm">{flashcard.front}</p>
+              <p className="text-sm" data-testid={`flashcard-${flashcard.id}-front`}>{flashcard.front}</p>
               {flashcard.status === "edited" && flashcard.originalFront && (
                 <div className="mt-2 text-xs text-muted-foreground">
                   <p className="font-medium">Original:</p>
@@ -94,7 +96,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
             </div>
             <div>
               <h3 className="text-sm font-medium mb-2">Back</h3>
-              <p className="text-sm">{flashcard.back}</p>
+              <p className="text-sm" data-testid={`flashcard-${flashcard.id}-back`}>{flashcard.back}</p>
               {flashcard.status === "edited" && flashcard.originalBack && (
                 <div className="mt-2 text-xs text-muted-foreground">
                   <p className="font-medium">Original:</p>
@@ -104,20 +106,24 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
             </div>
           </div>
         )}
+        <div data-testid={`flashcard-${flashcard.id}-status`} className="hidden">{flashcard.status}</div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2 pt-4">
         {isEditing ? (
           <>
-            <Button variant="outline" onClick={handleCancelEdit}>
+            <Button variant="outline" onClick={handleCancelEdit} data-testid={`cancel-edit-${flashcard.id}`}>
               Cancel
             </Button>
-            <Button onClick={handleSaveEdit}>Save</Button>
+            <Button onClick={handleSaveEdit} data-testid={`save-edit-${flashcard.id}`}>
+              Save
+            </Button>
           </>
         ) : (
           <>
             <Button 
               variant={getButtonVariant("reject")} 
               onClick={onReject}
+              data-testid={`reject-flashcard-${flashcard.id}`}
               className={cn(
                 flashcard.status === "rejected" && "bg-red-500 text-white hover:bg-red-600"
               )}
@@ -127,6 +133,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
             <Button 
               variant={getButtonVariant("edit")} 
               onClick={() => setIsEditing(true)}
+              data-testid={`edit-flashcard-${flashcard.id}`}
               className={cn(
                 flashcard.status === "edited" && "bg-orange-500 text-white hover:bg-orange-600"
               )}
@@ -136,6 +143,7 @@ export function FlashcardItem({ flashcard, onAccept, onEdit, onReject }: Flashca
             <Button 
               variant={getButtonVariant("accept")} 
               onClick={onAccept}
+              data-testid={`accept-flashcard-${flashcard.id}`}
               className={cn(
                 flashcard.status === "accepted" && "bg-green-500 text-white hover:bg-green-600"
               )}
