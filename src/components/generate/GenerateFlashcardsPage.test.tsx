@@ -202,60 +202,60 @@ describe("GenerateFlashcardsPage", () => {
       expect(screen.getAllByRole("listitem")).toHaveLength(2);
     });
 
-    // it("should handle API error response", async () => {
-    //   // Mock failed API response
-    //   vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ message: "API Error" }, false));
+    it("should handle API error response", async () => {
+      // Mock failed API response
+      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ message: "API Error" }, false));
 
-    //   render(<GenerateFlashcardsPage />);
-    //   const textArea = screen.getByRole("textbox");
-    //   const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
 
-    //   // Enter valid text and generate
-    //   await userEvent.type(textArea, "a".repeat(1000));
-    //   await userEvent.click(generateButton);
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
 
-    //   // Check error message
-    //   expect(await screen.findByText("API Error")).toBeInTheDocument();
-    //   expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    //   expect(screen.queryByRole("list")).not.toBeInTheDocument();
-    // });
+      // Check error message
+      expect(await screen.findByText("API Error")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    });
 
-    // it("should handle network error", async () => {
-    //   // Mock network error
-    //   vi.spyOn(global, "fetch").mockImplementation(() => Promise.reject(new Error("Network error")));
+    it("should handle network error", async () => {
+      // Mock network error
+      vi.spyOn(global, "fetch").mockImplementation(() => Promise.reject(new Error("Network error")));
 
-    //   render(<GenerateFlashcardsPage />);
-    //   const textArea = screen.getByRole("textbox");
-    //   const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
 
-    //   // Enter valid text and generate
-    //   await userEvent.type(textArea, "a".repeat(1000));
-    //   await userEvent.click(generateButton);
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
 
-    //   // Check error message
-    //   expect(await screen.findByText("Network error")).toBeInTheDocument();
-    //   expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    // });
+      // Check error message
+      expect(await screen.findByText("Network error")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
 
-    // it("should handle empty flashcards response", async () => {
-    //   // Mock empty flashcards response
-    //   vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ flashcards_proposals: [] }));
+    it("should handle empty flashcards response", async () => {
+      // Mock empty flashcards response
+      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ flashcards_proposals: [] }));
 
-    //   render(<GenerateFlashcardsPage />);
-    //   const textArea = screen.getByRole("textbox");
-    //   const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
 
-    //   // Enter valid text and generate
-    //   await userEvent.type(textArea, "a".repeat(1000));
-    //   await userEvent.click(generateButton);
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
 
-    //   // Check error message
-    //   expect(
-    //     await screen.findByText("No flashcards were generated. Please try with different text.")
-    //   ).toBeInTheDocument();
-    //   expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    //   expect(screen.queryByRole("list")).not.toBeInTheDocument();
-    // });
+      // Check error message
+      expect(
+        await screen.findByText("No flashcards were generated. Please try with different text.")
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    });
   });
 
   // describe("Flashcards List Interaction", () => {
