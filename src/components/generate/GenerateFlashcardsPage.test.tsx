@@ -1,7 +1,32 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
+
+const createMockResponse = (data: unknown, ok = true): Promise<Response> => {
+  const response: Response = {
+    ok,
+    json: () => Promise.resolve(data),
+    headers: new Headers(),
+    redirected: false,
+    status: ok ? 200 : 400,
+    statusText: ok ? "OK" : "Bad Request",
+    type: "basic",
+    url: "",
+    clone: function () {
+      return this;
+    },
+    body: null,
+    bodyUsed: false,
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+    blob: () => Promise.resolve(new Blob()),
+    formData: () => Promise.resolve(new FormData()),
+    text: () => Promise.resolve(""),
+  } as Response;
+
+  return Promise.resolve(response);
+};
 
 /**
  * Test Structure for GenerateFlashcardsPage
@@ -118,13 +143,105 @@ describe("GenerateFlashcardsPage", () => {
     });
   });
 
-  // describe("Flashcards Generation Process", () => {
-  //   // it('should show loading indicator when generating flashcards')
-  //   // it('should handle successful API response')
-  //   // it('should handle API error response')
-  //   // it('should handle network error')
-  //   // it('should handle empty flashcards response')
-  // });
+  describe("Flashcards Generation Process", () => {
+    beforeEach(() => {
+      vi.spyOn(global, "fetch").mockImplementation(() =>
+        createMockResponse({
+          flashcards_proposals: [
+            { front: "Test Front 1", back: "Test Back 1" },
+            { front: "Test Front 2", back: "Test Back 2" },
+          ],
+        })
+      );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it.only("should show loading indicator when generating flashcards", async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text
+      await userEvent.type(textArea, "a".repeat(1000));
+      await userEvent.click(generateButton);
+
+      expect(screen.getByRole("progressbar")).toBeInTheDocument();
+    });
+
+    it("should handle successful API response", async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      await userEvent.type(textArea, "a".repeat(1000));
+      await userEvent.click(generateButton);
+
+      // Wait for flashcards to appear
+      const flashcardsList = await screen.findByRole("list");
+      expect(flashcardsList).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    });
+
+    it("should handle API error response", async () => {
+      // Mock failed API response
+      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ message: "API Error" }, false));
+
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      await userEvent.type(textArea, "a".repeat(1000));
+      await userEvent.click(generateButton);
+
+      // Check error message
+      expect(await screen.findByText("API Error")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    });
+
+    it("should handle network error", async () => {
+      // Mock network error
+      vi.spyOn(global, "fetch").mockImplementation(() => Promise.reject(new Error("Network error")));
+
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      await userEvent.type(textArea, "a".repeat(1000));
+      await userEvent.click(generateButton);
+
+      // Check error message
+      expect(await screen.findByText("Network error")).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    });
+
+    it("should handle empty flashcards response", async () => {
+      // Mock empty flashcards response
+      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ flashcards_proposals: [] }));
+
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      await userEvent.type(textArea, "a".repeat(1000));
+      await userEvent.click(generateButton);
+
+      // Check error message
+      expect(
+        await screen.findByText("No flashcards were generated. Please try with different text.")
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    });
+  });
 
   // describe("Flashcards List Interaction", () => {
   //   // it('should render flashcards list after successful generation')
