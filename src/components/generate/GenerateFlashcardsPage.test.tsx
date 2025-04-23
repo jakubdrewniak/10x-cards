@@ -54,13 +54,69 @@ describe("GenerateFlashcardsPage", () => {
     });
   });
 
-  // describe("Text Input Validation", () => {
-  //   // it('should show error when text is empty')
-  //   // it('should show error when text is less than 1000 characters')
-  //   // it('should show error when text is more than 10000 characters')
-  //   // it('should enable generate button when text length is valid')
-  //   // it('should clear error message when text becomes valid')
-  // });
+  describe("Text Input Validation", () => {
+    beforeEach(() => {
+      render(<GenerateFlashcardsPage />);
+    });
+
+    const getTextArea = () => screen.getByRole("textbox");
+    const getGenerateButton = () => screen.getByRole("button", { name: /generate flashcards/i });
+
+    it("should show error when text is empty", async () => {
+      const textArea = getTextArea();
+      await userEvent.type(textArea, " ");
+      await userEvent.clear(textArea);
+
+      expect(screen.getByText("Please enter some text")).toBeInTheDocument();
+      expect(getGenerateButton()).toBeDisabled();
+    });
+
+    it("should show error when text is less than 1000 characters", async () => {
+      const textArea = getTextArea();
+      const shortText = "a".repeat(999);
+
+      await userEvent.type(textArea, shortText);
+
+      expect(screen.getByText(/Text must be at least 1000 characters/)).toBeInTheDocument();
+      expect(getGenerateButton()).toBeDisabled();
+    });
+
+    it("should show error when text is more than 10000 characters", async () => {
+      const textArea = getTextArea();
+      const longText = "a".repeat(10001);
+
+      await userEvent.type(textArea, longText);
+
+      expect(screen.getByText(/Text cannot exceed 10000 characters/)).toBeInTheDocument();
+      expect(getGenerateButton()).toBeDisabled();
+    });
+
+    it("should enable generate button when text length is valid", async () => {
+      const textArea = getTextArea();
+      const validText = "a".repeat(1000);
+
+      await userEvent.type(textArea, validText);
+
+      expect(screen.queryByText(/Text must be at least/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Text cannot exceed/)).not.toBeInTheDocument();
+      expect(getGenerateButton()).toBeEnabled();
+    });
+
+    it("should clear error message when text becomes valid", async () => {
+      const textArea = getTextArea();
+
+      // First enter invalid text
+      await userEvent.type(textArea, "short");
+      expect(screen.getByText(/Text must be at least/)).toBeInTheDocument();
+
+      // Then make it valid
+      await userEvent.clear(textArea);
+      await userEvent.type(textArea, "a".repeat(1000));
+
+      expect(screen.queryByText(/Text must be at least/)).not.toBeInTheDocument();
+      expect(getGenerateButton()).toBeEnabled();
+    });
+  });
 
   // describe("Flashcards Generation Process", () => {
   //   // it('should show loading indicator when generating flashcards')
