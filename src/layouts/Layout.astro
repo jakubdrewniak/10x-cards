@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { TopBar } from "../components/TopBar";
+import { Toaster } from "../components/Toaster";
 
 interface Props {
   title?: string;
@@ -27,6 +28,7 @@ const { user } = Astro.locals;
     <main class="container py-6">
       <slot />
     </main>
+    <Toaster client:load />
   </body>
 </html>
 

@@ -7,6 +7,7 @@ import { FlashcardsList } from "./FlashcardsList";
 import { AcceptAllButton } from "./AcceptAllButton";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { toast } from "sonner";
 
 interface GenerateViewModel {
   inputText: string;
@@ -122,6 +123,9 @@ export function GenerateFlashcardsPage() {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.message || "Failed to save flashcards");
       }
+
+      // Show success toast
+      toast.success(`Successfully saved ${acceptedOrEdited.length} flashcards!`);
 
       // Clear the form after successful save
       setViewModel((prev) => ({
