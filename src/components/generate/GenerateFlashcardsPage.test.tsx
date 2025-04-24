@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -256,13 +256,135 @@ describe("GenerateFlashcardsPage", () => {
     });
   });
 
-  // describe("Flashcards List Interaction", () => {
-  //   // it('should render flashcards list after successful generation')
-  //   // it('should allow accepting individual flashcard')
-  //   // it('should allow rejecting individual flashcard')
-  //   // it('should allow editing flashcard content')
-  //   // it('should preserve original content when editing flashcard')
-  // });
+  describe("Flashcards List Interaction", () => {
+    beforeEach(() => {
+      vi.spyOn(global, "fetch").mockImplementation(() =>
+        createMockResponse({
+          flashcards_proposals: [
+            { front: "Test Front 1", back: "Test Back 1" },
+            { front: "Test Front 2", back: "Test Back 2" },
+          ],
+        })
+      );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const setupFlashcardsList = async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
+
+      // Wait for flashcards to appear
+      await screen.findByRole("list");
+    };
+
+    it("should render flashcards list after successful generation", async () => {
+      await setupFlashcardsList();
+
+      const flashcardsList = screen.getByRole("list");
+      const flashcardItems = screen.getAllByRole("listitem");
+
+      expect(flashcardsList).toBeInTheDocument();
+      expect(flashcardItems).toHaveLength(2);
+      expect(screen.getByText("Test Front 1")).toBeInTheDocument();
+      expect(screen.getByText("Test Back 1")).toBeInTheDocument();
+    });
+
+    it("should allow accepting individual flashcard", async () => {
+      await setupFlashcardsList();
+
+      const acceptButtons = screen.getAllByRole("button", { name: /accept/i });
+      await userEvent.click(acceptButtons[0]);
+
+      // After accepting, the save button should be enabled if all cards are marked
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      expect(saveButton).toBeEnabled();
+    });
+
+    it("should allow rejecting individual flashcard", async () => {
+      await setupFlashcardsList();
+
+      const rejectButtons = screen.getAllByRole("button", { name: /reject/i });
+      // Reject all flashcards to enable the save button
+      for (const button of rejectButtons) {
+        await userEvent.click(button);
+      }
+
+      // After rejecting all cards, the save button should be enabled
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      expect(saveButton).toBeEnabled();
+    });
+
+    it("should allow editing flashcard content", async () => {
+      await setupFlashcardsList();
+
+      // Start editing the first flashcard
+      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      await userEvent.click(editButtons[0]);
+
+      // Find edit inputs
+      const frontInput = screen.getByDisplayValue("Test Front 1");
+      const backInput = screen.getByDisplayValue("Test Back 1");
+
+      // Edit content
+      await userEvent.clear(frontInput);
+      await userEvent.type(frontInput, "Edited Front");
+      await userEvent.clear(backInput);
+      await userEvent.type(backInput, "Edited Back");
+
+      // Find the save button within the flashcard being edited
+      const flashcardItem = screen.getAllByRole("listitem")[0];
+      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      await userEvent.click(saveButton);
+
+      // Verify edited content is displayed
+      expect(screen.getByText("Edited Front")).toBeInTheDocument();
+      expect(screen.getByText("Edited Back")).toBeInTheDocument();
+    });
+
+    it("should preserve original content when editing flashcard", async () => {
+      await setupFlashcardsList();
+
+      // Start editing first flashcard
+      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      await userEvent.click(editButtons[0]);
+
+      // Edit content
+      const frontInput = screen.getByDisplayValue("Test Front 1");
+      const backInput = screen.getByDisplayValue("Test Back 1");
+      await userEvent.clear(frontInput);
+      await userEvent.type(frontInput, "Edited Front");
+      await userEvent.clear(backInput);
+      await userEvent.type(backInput, "Edited Back");
+
+      // Save edits using the save button within the flashcard
+      const flashcardItem = screen.getAllByRole("listitem")[0];
+      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      await userEvent.click(saveButton);
+
+      // Verify the status is "edited"
+      const statusElement = screen.getByTestId("flashcard-1-status");
+      expect(statusElement.textContent).toBe("edited");
+
+      // Verify the edited and original content
+      const frontElement = screen.getByTestId("flashcard-1-front");
+      const backElement = screen.getByTestId("flashcard-1-back");
+
+      expect(frontElement).toHaveTextContent("Edited Front");
+      expect(backElement).toHaveTextContent("Edited Back");
+
+      // The original content should be preserved in the component's state
+      expect(frontElement.parentElement).toHaveTextContent("Test Front 1");
+      expect(backElement.parentElement).toHaveTextContent("Test Back 1");
+    });
+  });
 
   // describe("Batch Operations", () => {
   //   // it('should enable accept all button when flashcards are present')
