@@ -64,6 +64,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    // Validate Supabase connection first
+    const { data: healthCheck, error: healthError } = await supabase.from("generations").select("id").limit(1);
+
+    if (healthError) {
+      console.error("[DEBUG] Database connection error:", {
+        error: healthError,
+        message: healthError.message,
+        details: healthError.details,
+        hint: healthError.hint,
+      });
+      throw new Error(`Database connection error: ${healthError.message}`);
+    }
+
+    console.log("[DEBUG] Database connection validated");
+
     // Parse and validate request body
     const body = await request.json();
     const result = generateFlashcardsSchema.safeParse(body);
@@ -84,18 +99,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const command = result.data as GenerateFlashcardsCommand;
 
     // Create generation record
-    const { data: generation, error: insertError } = await supabase
+    const sourceTextHash = await crypto.subtle
+      .digest("SHA-256", new TextEncoder().encode(command.source_text))
+      .then((hash) =>
+        Array.from(new Uint8Array(hash))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("")
+      );
+
+    console.log("[DEBUG] Attempting to insert generation with hash:", sourceTextHash);
+
+    const insertResult = await supabase
       .from("generations")
       .insert({
         user_id: user.id,
         model: "gpt-4",
-        source_text_hash: await crypto.subtle
-          .digest("SHA-256", new TextEncoder().encode(command.source_text))
-          .then((hash) =>
-            Array.from(new Uint8Array(hash))
-              .map((b) => b.toString(16).padStart(2, "0"))
-              .join("")
-          ),
+        source_text_hash: sourceTextHash,
         source_text_length: command.source_text.length,
         generated_count: 0,
         accepted_unedited_count: 0,
@@ -105,13 +124,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .select()
       .single();
 
-    if (insertError) {
+    console.log("[DEBUG] Insert result:", {
+      data: insertResult.data,
+      status: insertResult.status,
+      statusText: insertResult.statusText,
+      error: insertResult.error,
+    });
+
+    if (insertResult.error) {
       console.error("[DEBUG] Database error:", {
-        error: insertError,
-        details: insertError.details,
+        error: insertResult.error,
+        message: insertResult.error.message,
+        details: insertResult.error.details,
+        hint: insertResult.error.hint,
+        code: insertResult.error.code,
+        data: {
+          user_id: user.id,
+          model: "gpt-4",
+          source_text_hash: sourceTextHash,
+          source_text_length: command.source_text.length,
+          generated_count: 0,
+          accepted_unedited_count: 0,
+          accepted_edited_count: 0,
+          generation_duration: 0,
+        },
       });
-      throw new Error("Failed to create generation record");
+      throw new Error(`Failed to create generation record: ${insertResult.error.message || "Unknown error"}`);
     }
+
+    const generation = insertResult.data;
 
     // Initialize OpenRouter service
     const openRouter = new OpenRouterService();

@@ -10,7 +10,7 @@ create extension if not exists "pgcrypto";
 -- Table: generations
 create table generations (
     id bigserial primary key,
-    user_id uuid not null,  -- Removed foreign key constraint for development
+    user_id uuid not null references auth.users(id) on delete cascade,
     model varchar not null,
     generated_count integer not null,
     accepted_unedited_count integer,
@@ -25,17 +25,32 @@ create table generations (
 -- Enable RLS for generations table
 alter table generations enable row level security;
 
--- Drop existing policies if they exist
-drop policy if exists "Users can view their own generations" on generations;
-drop policy if exists "Users can insert their own generations" on generations;
-drop policy if exists "Users can update their own generations" on generations;
-drop policy if exists "Users can delete their own generations" on generations;
+-- RLS Policies for generations table
+comment on table generations is 'Stores information about flashcard generation sessions';
 
--- Create permissive policies for testing
-create policy "Allow all operations on generations"
-    on generations for all
-    using (true)
-    with check (true);
+-- Authenticated users can view only their own generations
+create policy "Users can view their own generations"
+    on generations for select
+    to authenticated
+    using (auth.uid() = user_id);
+
+-- Authenticated users can insert their own generations
+create policy "Users can insert their own generations"
+    on generations for insert
+    to authenticated
+    with check (auth.uid() = user_id);
+
+-- Authenticated users can update their own generations
+create policy "Users can update their own generations"
+    on generations for update
+    to authenticated
+    using (auth.uid() = user_id);
+
+-- Authenticated users can delete their own generations
+create policy "Users can delete their own generations"
+    on generations for delete
+    to authenticated
+    using (auth.uid() = user_id);
 
 -- Table: flashcards
 create table flashcards (
@@ -46,28 +61,43 @@ create table flashcards (
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
     generation_id bigint references generations(id) on delete set null,
-    user_id uuid not null  -- Removed foreign key constraint for development
+    user_id uuid not null references auth.users(id) on delete cascade
 );
 
 -- Enable RLS for flashcards table
 alter table flashcards enable row level security;
 
--- Drop existing policies if they exist
-drop policy if exists "Users can view their own flashcards" on flashcards;
-drop policy if exists "Users can insert their own flashcards" on flashcards;
-drop policy if exists "Users can update their own flashcards" on flashcards;
-drop policy if exists "Users can delete their own flashcards" on flashcards;
+-- RLS Policies for flashcards table
+comment on table flashcards is 'Stores individual flashcards created by users';
 
--- Create permissive policies for testing
-create policy "Allow all operations on flashcards"
-    on flashcards for all
-    using (true)
-    with check (true);
+-- Authenticated users can view only their own flashcards
+create policy "Users can view their own flashcards"
+    on flashcards for select
+    to authenticated
+    using (auth.uid() = user_id);
+
+-- Authenticated users can insert their own flashcards
+create policy "Users can insert their own flashcards"
+    on flashcards for insert
+    to authenticated
+    with check (auth.uid() = user_id);
+
+-- Authenticated users can update their own flashcards
+create policy "Users can update their own flashcards"
+    on flashcards for update
+    to authenticated
+    using (auth.uid() = user_id);
+
+-- Authenticated users can delete their own flashcards
+create policy "Users can delete their own flashcards"
+    on flashcards for delete
+    to authenticated
+    using (auth.uid() = user_id);
 
 -- Table: generation_error_logs
 create table generation_error_logs (
     id bigserial primary key,
-    user_id uuid not null,  -- Removed foreign key constraint for development
+    user_id uuid not null references auth.users(id) on delete cascade,
     model varchar not null,
     source_text_hash varchar not null,
     source_text_length integer not null check (source_text_length between 1000 and 10000),
@@ -79,15 +109,20 @@ create table generation_error_logs (
 -- Enable RLS for generation_error_logs table
 alter table generation_error_logs enable row level security;
 
--- Drop existing policies if they exist
-drop policy if exists "Users can view their own error logs" on generation_error_logs;
-drop policy if exists "Users can insert their own error logs" on generation_error_logs;
+-- RLS Policies for generation_error_logs table
+comment on table generation_error_logs is 'Stores error logs from flashcard generation attempts';
 
--- Create permissive policies for testing
-create policy "Allow all operations on error logs"
-    on generation_error_logs for all
-    using (true)
-    with check (true);
+-- Authenticated users can view only their own error logs
+create policy "Users can view their own error logs"
+    on generation_error_logs for select
+    to authenticated
+    using (auth.uid() = user_id);
+
+-- Authenticated users can insert their own error logs
+create policy "Users can insert their own error logs"
+    on generation_error_logs for insert
+    to authenticated
+    with check (auth.uid() = user_id);
 
 -- Create indexes for better query performance
 create index idx_flashcards_user_id on flashcards(user_id);
