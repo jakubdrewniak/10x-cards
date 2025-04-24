@@ -98,9 +98,8 @@ describe("GenerateFlashcardsPage", () => {
 
     it("should show error when text is less than 1000 characters", async () => {
       const textArea = getTextArea();
-      const shortText = "a".repeat(999);
 
-      await userEvent.type(textArea, shortText);
+      fireEvent.change(textArea, { target: { value: "a".repeat(999) } });
 
       expect(screen.getByText(/Text must be at least 1000 characters/)).toBeInTheDocument();
       expect(getGenerateButton()).toBeDisabled();
@@ -118,9 +117,8 @@ describe("GenerateFlashcardsPage", () => {
 
     it("should enable generate button when text length is valid", async () => {
       const textArea = getTextArea();
-      const validText = "a".repeat(1000);
 
-      await userEvent.type(textArea, validText);
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
 
       expect(screen.queryByText(/Text must be at least/)).not.toBeInTheDocument();
       expect(screen.queryByText(/Text cannot exceed/)).not.toBeInTheDocument();
@@ -136,7 +134,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // Then make it valid
       await userEvent.clear(textArea);
-      await userEvent.type(textArea, "a".repeat(1000));
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
 
       expect(screen.queryByText(/Text must be at least/)).not.toBeInTheDocument();
       expect(getGenerateButton()).toBeEnabled();
