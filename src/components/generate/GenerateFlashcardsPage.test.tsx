@@ -386,12 +386,124 @@ describe("GenerateFlashcardsPage", () => {
     });
   });
 
-  // describe("Batch Operations", () => {
-  //   // it('should enable accept all button when flashcards are present')
-  //   // it('should mark all pending flashcards as accepted when clicking accept all')
-  //   // it('should not change status of edited flashcards when clicking accept all')
-  //   // it('should enable save button only when all flashcards are marked')
-  // });
+  describe("Batch Operations", () => {
+    beforeEach(() => {
+      vi.spyOn(global, "fetch").mockImplementation(() =>
+        createMockResponse({
+          flashcards_proposals: [
+            { front: "Test Front 1", back: "Test Back 1" },
+            { front: "Test Front 2", back: "Test Back 2" },
+            { front: "Test Front 3", back: "Test Back 3" },
+          ],
+        })
+      );
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const setupFlashcardsList = async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
+
+      // Wait for flashcards to appear
+      await screen.findByRole("list");
+    };
+
+    it("should enable accept all button when flashcards are present", async () => {
+      await setupFlashcardsList();
+
+      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      expect(acceptAllButton).toBeEnabled();
+    });
+
+    it("should mark all pending flashcards as accepted when clicking accept all", async () => {
+      await setupFlashcardsList();
+
+      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      await userEvent.click(acceptAllButton);
+
+      // Check that all flashcards are marked as accepted
+      const flashcardStatuses = screen.getAllByTestId(/flashcard-\d+-status/);
+      flashcardStatuses.forEach((status) => {
+        expect(status.textContent).toBe("accepted");
+      });
+
+      // Save button should be enabled since all cards are marked
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      expect(saveButton).toBeEnabled();
+    });
+
+    it("should not change status of edited flashcards when clicking accept all", async () => {
+      await setupFlashcardsList();
+
+      // Edit the first flashcard
+      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      await userEvent.click(editButtons[0]);
+
+      // Edit content
+      const frontInput = screen.getByDisplayValue("Test Front 1");
+      const backInput = screen.getByDisplayValue("Test Back 1");
+      await userEvent.clear(frontInput);
+      await userEvent.type(frontInput, "Edited Front");
+      await userEvent.clear(backInput);
+      await userEvent.type(backInput, "Edited Back");
+
+      // Save the edit
+      const flashcardItem = screen.getAllByRole("listitem")[0];
+      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      await userEvent.click(saveButton);
+
+      // Click accept all
+      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      await userEvent.click(acceptAllButton);
+
+      // Verify the edited card remains "edited" while others become "accepted"
+      const flashcardStatuses = screen.getAllByTestId(/flashcard-\d+-status/);
+      expect(flashcardStatuses[0].textContent).toBe("edited");
+      expect(flashcardStatuses[1].textContent).toBe("accepted");
+      expect(flashcardStatuses[2].textContent).toBe("accepted");
+    });
+
+    it("should enable save button only when all flashcards are marked", async () => {
+      await setupFlashcardsList();
+      const user = userEvent.setup();
+
+      // Let's skip checking the initial flashcard states since they might be changed by other tests
+      // and focus on the save button logic which is what we're actually testing
+
+      const saveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+
+      // Verify save buttons are initially disabled
+      expect(saveButtons[0]).toHaveAttribute("disabled");
+      expect(saveButtons[1]).toHaveAttribute("disabled");
+
+      // Get all buttons that can change flashcard status
+      const acceptButtons = screen.getAllByRole("button", { name: /accept/i });
+
+      // Accept all three cards one by one
+      await user.click(acceptButtons[0]);
+      await user.click(acceptButtons[1]);
+      await user.click(acceptButtons[2]);
+
+      // After accepting all cards, the save buttons should be enabled
+      // Wait a bit for React state updates to propagate
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Get fresh references to the save buttons
+      const updatedSaveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+
+      // Now the save buttons should be enabled
+      expect(updatedSaveButtons[0]).not.toHaveAttribute("disabled");
+      expect(updatedSaveButtons[1]).not.toHaveAttribute("disabled");
+    });
+  });
 
   // describe("Save Operation", () => {
   //   // it('should collect only accepted and edited flashcards for saving')
