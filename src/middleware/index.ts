@@ -2,9 +2,12 @@ import { defineMiddleware } from "astro:middleware";
 
 import { supabaseClient } from "../db/supabase.client";
 
-const PUBLIC_PATHS = ["/login", "/register", "/reset-password", "/api/login", "/generate"];
+const PUBLIC_PATHS = ["/login", "/register", "/reset-password", "/api/login", "/generate", "/api/generations"];
 
 export const onRequest = defineMiddleware(async ({ cookies, redirect, url, locals }, next) => {
+  // Initialize Supabase client in locals
+  locals.supabase = supabaseClient;
+
   // Get session from cookies
   const accessToken = cookies.get("sb-access-token")?.value;
   const refreshToken = cookies.get("sb-refresh-token")?.value;
