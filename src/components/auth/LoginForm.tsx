@@ -111,6 +111,14 @@ export function LoginForm() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logowanie..." : "Zaloguj się"}
             </Button>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              className="w-full"
+              onClick={() => window.location.replace("/generate")}
+            >
+              Kontynuuj jako gość
+            </Button>
             <div className="flex justify-center gap-2 text-sm">
               <span className="text-muted-foreground">Nie masz jeszcze konta?</span>
               <a href="/register" className="text-primary hover:underline">
