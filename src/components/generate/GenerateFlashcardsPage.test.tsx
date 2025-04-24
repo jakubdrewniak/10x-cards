@@ -666,11 +666,4 @@ describe("GenerateFlashcardsPage", () => {
       expect(editedCard?.originalBack).toBe("Test Back 1");
     });
   });
-
-  // describe("Integration Scenarios", () => {
-  //   // it('should handle complete flow: input -> generate -> edit -> accept -> save')
-  //   // it('should handle multiple generations with same input')
-  //   // it('should preserve edited flashcards when regenerating')
-  //   // it('should handle edge cases in flashcard content')
-  // });
 });
