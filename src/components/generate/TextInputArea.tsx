@@ -19,6 +19,7 @@ export function TextInputArea({ value, onChange, error }: TextInputAreaProps) {
         onChange={(e) => onChange(e.target.value)}
         placeholder="Paste your text here (1,000 - 10,000 characters)"
         className="min-h-[200px] max-h-[300px] resize-y"
+        data-testid="generate-input-text"
       />
 
       <div className="flex justify-between text-sm text-muted-foreground">

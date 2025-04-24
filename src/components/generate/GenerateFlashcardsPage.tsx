@@ -254,6 +254,7 @@ export function GenerateFlashcardsPage() {
           <Button
             onClick={handleGenerateClick}
             disabled={viewModel.isLoading || viewModel.inputText.length < 1000 || viewModel.inputText.length > 10000}
+            data-testid="generate-flashcards-button"
           >
             {viewModel.isLoading ? "Generating..." : "Generate Flashcards"}
           </Button>
@@ -273,6 +274,7 @@ export function GenerateFlashcardsPage() {
                 onClick={isLoggedIn ? handleSave : handleCopyToClipboard} 
                 disabled={!areAllProposalsMarked()} 
                 variant="default"
+                data-testid="save-flashcards-button"
               >
                 {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}
               </Button>

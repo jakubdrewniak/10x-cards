@@ -1,0 +1,1 @@
+import{j as r}from"./jsx-runtime.D_zvdyIk.js";import{T as o}from"./index.DsAq0-jZ.js";import"./index.DmM0KDA7.js";import"./index.Br0cVbys.js";import"./index.C24GoEYG.js";function p(){return r.jsx(o,{richColors:!0,closeButton:!0})}export{p as Toaster};
