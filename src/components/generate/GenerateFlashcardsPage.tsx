@@ -25,6 +25,25 @@ export function GenerateFlashcardsPage() {
     flashcardsProposals: [],
   });
 
+  // Add state to track if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // Check login status on component mount
+  React.useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        const data = await response.json();
+        setIsLoggedIn(!!data.session);
+      } catch (error) {
+        console.error("Failed to check login status:", error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
   const handleTextChange = (text: string) => {
     setViewModel((prev) => ({
       ...prev,
@@ -88,6 +107,34 @@ export function GenerateFlashcardsPage() {
         status: proposal.status === "edited" ? "edited" : "accepted",
       })),
     }));
+  };
+
+  const handleCopyToClipboard = async () => {
+    const acceptedOrEdited = viewModel.flashcardsProposals.filter(
+      (proposal) => proposal.status === "accepted" || proposal.status === "edited"
+    );
+
+    if (acceptedOrEdited.length === 0) {
+      setViewModel((prev) => ({
+        ...prev,
+        errorMessage: "No flashcards selected for copying",
+      }));
+      return;
+    }
+
+    try {
+      const flashcardsText = acceptedOrEdited
+        .map((card) => `Front: ${card.front}\nBack: ${card.back}\n---`)
+        .join("\n\n");
+
+      await navigator.clipboard.writeText(flashcardsText);
+      toast.success(`Successfully copied ${acceptedOrEdited.length} flashcards to clipboard!`);
+
+      // Remove the form clearing code - we want to keep the current view
+    } catch (error) {
+      toast.error("Failed to copy flashcards to clipboard");
+      console.error("Clipboard error:", error);
+    }
   };
 
   const handleSave = async () => {
@@ -222,8 +269,12 @@ export function GenerateFlashcardsPage() {
                 disabled={false}
                 flashcardsCount={viewModel.flashcardsProposals.length}
               />
-              <Button onClick={handleSave} disabled={!areAllProposalsMarked()} variant="default">
-                Save Flashcards
+              <Button 
+                onClick={isLoggedIn ? handleSave : handleCopyToClipboard} 
+                disabled={!areAllProposalsMarked()} 
+                variant="default"
+              >
+                {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}
               </Button>
             </div>
 
@@ -235,8 +286,13 @@ export function GenerateFlashcardsPage() {
             />
 
             <div className="flex justify-end mt-4">
-              <Button onClick={handleSave} disabled={!areAllProposalsMarked()} variant="default" size="lg">
-                Save Flashcards
+              <Button 
+                onClick={isLoggedIn ? handleSave : handleCopyToClipboard} 
+                disabled={!areAllProposalsMarked()} 
+                variant="default" 
+                size="lg"
+              >
+                {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}
               </Button>
             </div>
           </>
