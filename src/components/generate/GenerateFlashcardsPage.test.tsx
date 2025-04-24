@@ -3,6 +3,13 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
+import type { FlashcardProposal } from "../../types";
+
+interface MockConsoleLog {
+  mock: {
+    calls: [string, FlashcardProposal[]][];
+  };
+}
 
 const createMockResponse = (data: unknown, ok = true): Promise<Response> => {
   const response: Response = {
@@ -505,12 +512,160 @@ describe("GenerateFlashcardsPage", () => {
     });
   });
 
-  // describe("Save Operation", () => {
-  //   // it('should collect only accepted and edited flashcards for saving')
-  //   // it('should exclude rejected flashcards from saving')
-  //   // it('should handle save operation success')
-  //   // it('should handle save operation failure')
-  // });
+  describe("Save Operation", () => {
+    beforeEach(() => {
+      vi.spyOn(global, "fetch").mockImplementation(() =>
+        createMockResponse({
+          flashcards_proposals: [
+            { front: "Test Front 1", back: "Test Back 1" },
+            { front: "Test Front 2", back: "Test Back 2" },
+            { front: "Test Front 3", back: "Test Back 3" },
+          ],
+        })
+      );
+      vi.spyOn(console, "log");
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const setupFlashcardsWithStatuses = async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
+
+      // Wait for flashcards to appear
+      await screen.findByRole("list");
+    };
+
+    it("should collect only accepted and edited flashcards for saving", async () => {
+      await setupFlashcardsWithStatuses();
+
+      // Get all flashcard items
+      const flashcardItems = screen.getAllByRole("listitem");
+
+      // Accept first card
+      const acceptButton = within(flashcardItems[0]).getByRole("button", { name: /accept/i });
+      await userEvent.click(acceptButton);
+
+      // Edit second card
+      const editButton = within(flashcardItems[1]).getByRole("button", { name: /edit/i });
+      await userEvent.click(editButton);
+
+      // Find inputs within the second flashcard
+      const inputs = within(flashcardItems[1]).getAllByRole("textbox");
+      const frontInput = inputs[0];
+      const backInput = inputs[1];
+
+      // Edit the content
+      await userEvent.clear(frontInput);
+      await userEvent.type(frontInput, "Edited Front");
+      await userEvent.clear(backInput);
+      await userEvent.type(backInput, "Edited Back");
+
+      // Save the edit
+      const saveEditButton = within(flashcardItems[1]).getByRole("button", { name: /save/i });
+      await userEvent.click(saveEditButton);
+
+      // Reject third card
+      const rejectButton = within(flashcardItems[2]).getByRole("button", { name: /reject/i });
+      await userEvent.click(rejectButton);
+
+      // Click save button
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      await userEvent.click(saveButton);
+
+      // Verify console.log was called with correct data
+      const consoleLogSpy = console.log as unknown as MockConsoleLog;
+      expect(console.log).toHaveBeenCalledTimes(2);
+      const allFlashcardsLog = consoleLogSpy.mock.calls[0][1];
+      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
+
+      // Check all flashcards were logged
+      expect(allFlashcardsLog).toHaveLength(3);
+      expect(allFlashcardsLog[0].status).toBe("accepted");
+      expect(allFlashcardsLog[1].status).toBe("edited");
+      expect(allFlashcardsLog[2].status).toBe("rejected");
+
+      // Check only accepted and edited were included in save
+      expect(savedFlashcardsLog).toHaveLength(2);
+      expect(savedFlashcardsLog.every((card) => ["accepted", "edited"].includes(card.status))).toBe(true);
+      expect(savedFlashcardsLog.some((card) => card.status === "rejected")).toBe(false);
+    });
+
+    it("should exclude rejected flashcards from saving", async () => {
+      await setupFlashcardsWithStatuses();
+
+      // Reject all flashcards
+      const flashcardItems = screen.getAllByRole("listitem");
+      for (const item of flashcardItems) {
+        const rejectButton = within(item).getByRole("button", { name: /reject/i });
+        await userEvent.click(rejectButton);
+      }
+
+      // Click save button
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      await userEvent.click(saveButton);
+
+      // Verify console.log was called with correct data
+      const consoleLogSpy = console.log as unknown as MockConsoleLog;
+      expect(console.log).toHaveBeenCalledTimes(2);
+      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
+
+      // Check no flashcards were included in save
+      expect(savedFlashcardsLog).toHaveLength(0);
+    });
+
+    it("should preserve original content for edited flashcards when saving", async () => {
+      await setupFlashcardsWithStatuses();
+
+      // Get first flashcard and edit it
+      const flashcardItems = screen.getAllByRole("listitem");
+      const editButton = within(flashcardItems[0]).getByRole("button", { name: /edit/i });
+      await userEvent.click(editButton);
+
+      // Find inputs within the first flashcard
+      const inputs = within(flashcardItems[0]).getAllByRole("textbox");
+      const frontInput = inputs[0];
+      const backInput = inputs[1];
+
+      // Edit the content
+      await userEvent.clear(frontInput);
+      await userEvent.type(frontInput, "Edited Front");
+      await userEvent.clear(backInput);
+      await userEvent.type(backInput, "Edited Back");
+
+      // Save the edit
+      const saveEditButton = within(flashcardItems[0]).getByRole("button", { name: /save/i });
+      await userEvent.click(saveEditButton);
+
+      // Accept remaining cards to enable save
+      for (let i = 1; i < flashcardItems.length; i++) {
+        const acceptButton = within(flashcardItems[i]).getByRole("button", { name: /accept/i });
+        await userEvent.click(acceptButton);
+      }
+
+      // Click save button
+      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      await userEvent.click(saveButton);
+
+      // Verify console.log was called with correct data
+      const consoleLogSpy = console.log as unknown as MockConsoleLog;
+      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
+      const editedCard = savedFlashcardsLog.find((card) => card.status === "edited");
+
+      // Check edited card contains both current and original content
+      expect(editedCard?.front).toBe("Edited Front");
+      expect(editedCard?.back).toBe("Edited Back");
+      expect(editedCard?.originalFront).toBe("Test Front 1");
+      expect(editedCard?.originalBack).toBe("Test Back 1");
+    });
+  });
 
   // describe("Integration Scenarios", () => {
   //   // it('should handle complete flow: input -> generate -> edit -> accept -> save')
