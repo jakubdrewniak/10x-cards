@@ -27,6 +27,7 @@ export function TopBar({ initialUser }: TopBarProps) {
 
       const response = await fetch("/api/auth/logout", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -38,9 +39,10 @@ export function TopBar({ initialUser }: TopBarProps) {
       }
 
       clearUser();
-      window.location.href = "/generate";
+      window.location.href = "/login";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
+      console.error("Błąd wylogowania:", err);
     } finally {
       setIsLoading(false);
     }
