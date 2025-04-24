@@ -5,33 +5,35 @@ import { supabaseClient } from "../db/supabase.client";
 const PUBLIC_PATHS = ["/login", "/register", "/reset-password", "/api/login", "/generate", "/api/generations"];
 
 export const onRequest = defineMiddleware(async ({ cookies, redirect, url, locals }, next) => {
-  // Initialize Supabase client in locals
-  locals.supabase = supabaseClient;
-
   // Get session from cookies
   const accessToken = cookies.get("sb-access-token")?.value;
   const refreshToken = cookies.get("sb-refresh-token")?.value;
 
-  // Initialize user state
+  // Initialize user state and Supabase client
   locals.user = null;
-
-  // If we have tokens, try to get user data
+  
+  // Create new Supabase client instance with session if tokens exist
   if (accessToken && refreshToken) {
-    const {
-      data: { user },
-      error,
-    } = await supabaseClient.auth.getUser(accessToken);
+    // Set the session in the Supabase client
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
 
-    if (!error && user) {
+    if (!sessionError && session) {
+      locals.supabase = supabaseClient;
       locals.user = {
-        id: user.id,
-        email: user.email,
+        id: session.user.id,
+        email: session.user.email,
       };
     } else {
       // Clear invalid session
       cookies.delete("sb-access-token", { path: "/" });
       cookies.delete("sb-refresh-token", { path: "/" });
+      locals.supabase = supabaseClient;
     }
+  } else {
+    locals.supabase = supabaseClient;
   }
 
   // For protected paths, redirect to generate if not authenticated

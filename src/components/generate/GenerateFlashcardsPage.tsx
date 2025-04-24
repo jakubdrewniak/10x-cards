@@ -13,6 +13,7 @@ interface GenerateViewModel {
   isLoading: boolean;
   errorMessage: string | null;
   flashcardsProposals: FlashcardProposal[];
+  generationId?: string | null;
 }
 
 export function GenerateFlashcardsPage() {
@@ -88,12 +89,56 @@ export function GenerateFlashcardsPage() {
     }));
   };
 
-  const handleSave = () => {
-    console.log("All flashcards:", viewModel.flashcardsProposals);
+  const handleSave = async () => {
     const acceptedOrEdited = viewModel.flashcardsProposals.filter(
       (proposal) => proposal.status === "accepted" || proposal.status === "edited"
     );
-    console.log("Saving flashcards:", acceptedOrEdited);
+
+    if (acceptedOrEdited.length === 0) {
+      setViewModel((prev) => ({
+        ...prev,
+        errorMessage: "No flashcards selected for saving",
+      }));
+      return;
+    }
+
+    try {
+      setViewModel((prev) => ({ ...prev, isLoading: true, errorMessage: null }));
+
+      const response = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          flashcards: acceptedOrEdited.map((card) => ({
+            front: card.front,
+            back: card.back,
+            source: card.status === "edited" ? "ai-edited" : "ai-full",
+            generation_id: viewModel.generationId || null,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Failed to save flashcards");
+      }
+
+      // Clear the form after successful save
+      setViewModel((prev) => ({
+        ...prev,
+        inputText: "",
+        flashcardsProposals: [],
+        isLoading: false,
+        errorMessage: null,
+        generationId: null,
+      }));
+    } catch (error) {
+      setViewModel((prev) => ({
+        ...prev,
+        isLoading: false,
+        errorMessage: error instanceof Error ? error.message : "Failed to save flashcards",
+      }));
+    }
   };
 
   const areAllProposalsMarked = () => {

@@ -21,9 +21,6 @@ const generateFlashcardsSchema = z.object({
     .max(10000, "Source text cannot exceed 10000 characters"),
 });
 
-// Dummy user ID for development (will be replaced with actual auth)
-const DUMMY_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
-
 // System prompt for flashcard generation
 const FLASHCARD_SYSTEM_PROMPT = `You are an expert at creating educational flashcards.
 Your task is to generate high-quality flashcards from the provided text.
@@ -48,15 +45,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase as SupabaseClient;
 
+    // Get the current user from the session
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "You must be logged in to generate flashcards",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const result = generateFlashcardsSchema.safeParse(body);
-
-    // TODO: Remove debug logs after initial testing
-    console.log("[DEBUG] Request validation:", {
-      success: result.success,
-      errors: !result.success ? result.error.errors : null,
-    });
 
     if (!result.success) {
       return new Response(
@@ -73,17 +83,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const command = result.data as GenerateFlashcardsCommand;
 
-    // TODO: Remove after verifying text processing
-    console.log("[DEBUG] Processing text:", {
-      length: command.source_text.length,
-      preview: command.source_text.substring(0, 100) + "...",
-    });
-
     // Create generation record
     const { data: generation, error: insertError } = await supabase
       .from("generations")
       .insert({
-        user_id: DUMMY_USER_ID,
+        user_id: user.id,
         model: "gpt-4",
         source_text_hash: await crypto.subtle
           .digest("SHA-256", new TextEncoder().encode(command.source_text))
@@ -102,7 +106,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .single();
 
     if (insertError) {
-      // TODO: Improve database error logging
       console.error("[DEBUG] Database error:", {
         error: insertError,
         details: insertError.details,
@@ -117,8 +120,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     openRouter.setSystemMessage(FLASHCARD_SYSTEM_PROMPT);
     openRouter.setUserMessage(command.source_text);
     openRouter.setModelParameters({
-      temperature: 0.2, // Lower temperature for more consistent output
-      max_tokens: 2048, // Ensure enough tokens for multiple flashcards
+      temperature: 0.2,
+      max_tokens: 2048,
     });
     openRouter.setResponseFormat({
       type: "json_schema",
@@ -129,9 +132,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       },
     });
 
-    // TODO: Remove after verifying AI setup
-    console.log("[DEBUG] Starting AI generation...");
-
     // Generate flashcards using AI
     const startTime = Date.now();
     const openRouterResponse = await openRouter.sendChat<OpenRouterResponse>();
@@ -139,18 +139,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Parse the JSON string from the content field
     const flashcards_proposals = JSON.parse(openRouterResponse.choices[0].message.content) as AIFlashcardProposalDTO[];
-
-    // TODO: Remove after verifying AI response
-    console.log("[DEBUG] AI generation complete:", {
-      count: flashcards_proposals.length,
-      duration: generationDuration,
-      firstCard: flashcards_proposals[0]
-        ? {
-            frontPreview: flashcards_proposals[0].front.substring(0, 50) + "...",
-            backLength: flashcards_proposals[0].back.length,
-          }
-        : null,
-    });
 
     // Update generation record with results
     await supabase
@@ -172,7 +160,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    // TODO: Enhanced error logging
     console.error("[DEBUG] Critical error:", {
       name: error instanceof Error ? error.name : "Unknown",
       message: error instanceof Error ? error.message : String(error),

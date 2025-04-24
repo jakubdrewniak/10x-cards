@@ -28,6 +28,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase as SupabaseClient;
 
+    // Get user session
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "You must be logged in to create flashcards",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const validationResult = createFlashcardsCommandSchema.safeParse(body);
@@ -44,9 +63,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const command = validationResult.data as CreateFlashcardsCommand;
 
+    // Add user_id to each flashcard
+    const flashcardsWithUserId = command.flashcards.map((flashcard) => ({
+      ...flashcard,
+      user_id: user.id,
+    }));
+
     // Create flashcards using the service
     const flashcardService = new FlashcardService(supabase);
-    const createdFlashcards = await flashcardService.createFlashcards(command);
+    const createdFlashcards = await flashcardService.createFlashcards({
+      flashcards: flashcardsWithUserId,
+    });
 
     return new Response(JSON.stringify({ flashcards: createdFlashcards }), {
       status: 201,

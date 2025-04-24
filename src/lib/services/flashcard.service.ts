@@ -2,9 +2,6 @@ import type { SupabaseClient } from "../../db/supabase.client";
 import type { CreateFlashcardsCommand, FlashcardDTO } from "../../types";
 import type { PostgrestError } from "@supabase/supabase-js";
 
-// Dummy user ID for development (same as in generations.ts)
-const DUMMY_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
-
 class FlashcardServiceError extends Error {
   constructor(
     message: string,
@@ -20,10 +17,20 @@ export class FlashcardService {
   constructor(private readonly supabase: SupabaseClient) {}
 
   async createFlashcards(command: CreateFlashcardsCommand): Promise<FlashcardDTO[]> {
-    // Prepare flashcards with user_id
+    // Get the current user from the session
+    const {
+      data: { user },
+      error: authError,
+    } = await this.supabase.auth.getUser();
+
+    if (authError || !user) {
+      throw new FlashcardServiceError("Authentication required", "401", "User must be logged in to create flashcards");
+    }
+
+    // Prepare flashcards with authenticated user_id
     const flashcardsToInsert = command.flashcards.map((flashcard) => ({
       ...flashcard,
-      user_id: DUMMY_USER_ID,
+      user_id: user.id,
     }));
 
     const { data, error } = await this.supabase.from("flashcards").insert(flashcardsToInsert).select();
