@@ -38,7 +38,7 @@ export function TopBar({ initialUser }: TopBarProps) {
       }
 
       clearUser();
-      window.location.href = "/login";
+      window.location.href = "/generate";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
     } finally {

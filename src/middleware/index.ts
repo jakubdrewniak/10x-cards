@@ -31,9 +31,9 @@ export const onRequest = defineMiddleware(async ({ cookies, redirect, url, local
     }
   }
 
-  // For protected paths, redirect to login if not authenticated
+  // For protected paths, redirect to generate if not authenticated
   if (!locals.user && !PUBLIC_PATHS.includes(url.pathname)) {
-    return redirect("/login");
+    return redirect("/generate");
   }
 
   return next();

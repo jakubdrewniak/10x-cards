@@ -53,7 +53,7 @@ export function LoginForm() {
       // Update user store
       useUserStore.getState().setUser(result.user);
 
-      // Przekieruj na stronę główną
+      // Redirect to generate page
       window.location.replace("/generate");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
