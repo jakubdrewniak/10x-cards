@@ -51,18 +51,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
       error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({
-          error: "Unauthorized",
-          message: "You must be logged in to generate flashcards",
-        }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
+    // Remove the unauthorized check since we want to allow guest users
+    // if (authError || !user) {
+    //   return new Response(
+    //     JSON.stringify({
+    //       error: "Unauthorized",
+    //       message: "You must be logged in to generate flashcards",
+    //     }),
+    //     {
+    //       status: 401,
+    //       headers: { "Content-Type": "application/json" },
+    //     }
+    //   );
+    // }
 
     // Validate Supabase connection first
     const { data: healthCheck, error: healthError } = await supabase.from("generations").select("id").limit(1);
@@ -112,7 +113,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const insertResult = await supabase
       .from("generations")
       .insert({
-        user_id: user.id,
+        user_id: user?.id || null, // Use null for guest users
         model: "gpt-4",
         source_text_hash: sourceTextHash,
         source_text_length: command.source_text.length,
@@ -139,7 +140,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         hint: insertResult.error.hint,
         code: insertResult.error.code,
         data: {
-          user_id: user.id,
+          user_id: user?.id || null,
           model: "gpt-4",
           source_text_hash: sourceTextHash,
           source_text_length: command.source_text.length,

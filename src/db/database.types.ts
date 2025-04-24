@@ -106,7 +106,7 @@ export interface Database {
           source_text_hash: string;
           source_text_length: number;
           updated_at: string;
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           accepted_edited_count?: number | null;
@@ -119,7 +119,7 @@ export interface Database {
           source_text_hash: string;
           source_text_length: number;
           updated_at?: string;
-          user_id: string;
+          user_id?: string | null;
         };
         Update: {
           accepted_edited_count?: number | null;
@@ -132,7 +132,7 @@ export interface Database {
           source_text_hash?: string;
           source_text_length?: number;
           updated_at?: string;
-          user_id?: string;
+          user_id?: string | null;
         };
         Relationships: [];
       };
