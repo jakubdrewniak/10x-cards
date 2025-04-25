@@ -1,4 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+// W modułach ES musimy stworzyć __dirname samodzielnie
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from .env.test
+dotenv.config({ path: resolve(__dirname, ".env.test") });
 
 export default defineConfig({
   testDir: "./e2e",
@@ -19,7 +29,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run preview",
+    command: "npm run astro dev -- --mode test",
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },

@@ -82,7 +82,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="twoj@email.com" {...field} />
+                    <Input data-testid="email-input" type="email" placeholder="twoj@email.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,7 +95,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Hasło</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input data-testid="password-input" type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                   <div className="text-right pb-2">
@@ -108,7 +108,7 @@ export function LoginForm() {
             />
           </CardContent>
           <CardFooter className="flex flex-col gap-4 w-full">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
               {isLoading ? "Logowanie..." : "Zaloguj się"}
             </Button>
             <Button 

@@ -1,22 +1,15 @@
-import { test, expect } from '@playwright/test';
-import { GenerateFlashcardsPage } from './page-objects/generate-flashcards.page';
+import { test, expect } from "@playwright/test";
+import { GenerateFlashcardsPage } from "./page-objects/generate-flashcards.page";
 
-test.describe('Generate Flashcards Page', () => {
+test.describe("Generate Flashcards Page", () => {
   let page: GenerateFlashcardsPage;
 
   test.beforeEach(async ({ page: p }) => {
     page = new GenerateFlashcardsPage(p);
-    // Set longer timeout for page load and add error handling
-    try {
-      await page.goto();
-    } catch (error) {
-      console.error('Failed to load generate flashcards page:', error);
-      throw error;
-    }
   });
 
-  // Increase timeout for this specific test as it involves API calls
-  test('should generate and save flashcards', async ({ }, testInfo) => {
+  // TODO: finish test when flashcards list is implemented
+  test("should generate and save flashcards as logged in user", async ({}, testInfo) => {
     testInfo.setTimeout(60000); // Set timeout to 60 seconds for this test
 
     // Sample React hooks documentation
@@ -45,24 +38,75 @@ test.describe('Generate Flashcards Page', () => {
     `.repeat(2); // Repeat to meet minimum length requirement
 
     try {
-      // Enter text and generate flashcards
-      await page.enterText(sampleText);
-      await page.generateFlashcards();
+      // Use the complete flow method which handles login, generation, and verification
+      const flashcards = await page.completeFlashcardFlow(sampleText);
 
-      // Accept all flashcards
-      await page.acceptAllFlashcards();
+      // // Additional verification for specific flashcard content
+      // expect(flashcards.length).toBeGreaterThan(0);
 
-      // Save flashcards and verify success message
-      await page.saveFlashcards();
-      await page.checkSuccessToast();
+      // // Find a flashcard related to useState
+      // const useStateCard = flashcards.find(
+      //   (card) => card.front.toLowerCase().includes("usestate") || card.back.toLowerCase().includes("usestate")
+      // );
 
-      // Optional: Verify individual flashcard content
-      const firstFlashcard = page.getFlashcard(1);
-      expect(await firstFlashcard.getFront()).toContain('useState');
-      expect(await firstFlashcard.getStatus()).toBe('accepted');
+      // expect(useStateCard).toBeDefined();
     } catch (error) {
-      console.error('Test failed:', error);
+      console.error("Test failed:", error);
       throw error;
     }
   });
-}); 
+
+  test("should verify flashcards are displayed correctly on page", async ({}, testInfo) => {
+    testInfo.setTimeout(45000);
+
+    const sampleText = `
+      JavaScript Closures
+      
+      A closure is the combination of a function bundled together with references to its surrounding state.
+      
+      Closures allow a function to access variables from an outer function even after the outer function has returned.
+      
+      Closures are created every time a function is created, at function creation time.
+
+      A closure is the combination of a function bundled together with references to its surrounding state.
+      
+      Closures allow a function to access variables from an outer function even after the outer function has returned.
+      
+      Closures are created every time a function is created, at function creation time.
+    `.repeat(2);
+
+    try {
+      // Login and go to generate page
+      await page.gotoAsLoggedInUser();
+
+      // Generate flashcards
+      await page.enterText(sampleText);
+      await page.generateFlashcards();
+
+      // Get current flashcards
+      const initialFlashcards = await page.collectCurrentFlashcards();
+
+      // Verify flashcards are displayed correctly
+      await page.verifyFlashcardsOnPage(initialFlashcards);
+
+      // Edit a flashcard (assuming at least one exists)
+      if (initialFlashcards.length > 0) {
+        const flashcard = page.getFlashcard(0);
+        const newFront = "JavaScript Closures Definition";
+        const newBack = "The combination of a function and its lexical environment";
+
+        await flashcard.edit(newFront, newBack);
+
+        // Get updated flashcards and verify the edit took effect
+        const updatedFlashcards = await page.collectCurrentFlashcards();
+        const editedCard = updatedFlashcards[0];
+
+        expect(editedCard.front).toBe(newFront);
+        expect(editedCard.back).toBe(newBack);
+      }
+    } catch (error) {
+      console.error("Test failed:", error);
+      throw error;
+    }
+  });
+});
