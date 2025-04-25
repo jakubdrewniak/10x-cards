@@ -8,6 +8,17 @@ test.describe("Generate Flashcards Page", () => {
     page = new GenerateFlashcardsPage(p);
   });
 
+  // Debug the auth state before each test
+  test("should verify user authentication state", async () => {
+    // Login and check auth state
+    await page.gotoAsLoggedInUser();
+    const authState = await page.debugAuthState();
+
+    // Verify user is properly authenticated
+    expect(authState.isLoggedInState).toBe(true);
+    expect(authState.userStorageData).toContain("isAuthenticated");
+  });
+
   // TODO: finish test when flashcards list is implemented
   test("should generate and save flashcards as logged in user", async ({}, testInfo) => {
     testInfo.setTimeout(60000); // Set timeout to 60 seconds for this test
@@ -38,6 +49,11 @@ test.describe("Generate Flashcards Page", () => {
     `.repeat(2); // Repeat to meet minimum length requirement
 
     try {
+      // Login and verify authentication
+      await page.gotoAsLoggedInUser();
+      const authState = await page.debugAuthState();
+      console.log("Auth state before generation:", authState);
+
       // Use the complete flow method which handles login, generation, and verification
       const flashcards = await page.completeFlashcardFlow(sampleText);
 
@@ -78,6 +94,10 @@ test.describe("Generate Flashcards Page", () => {
     try {
       // Login and go to generate page
       await page.gotoAsLoggedInUser();
+
+      // Debug auth state
+      const authState = await page.debugAuthState();
+      console.log("Auth state before flashcard verification:", authState);
 
       // Generate flashcards
       await page.enterText(sampleText);

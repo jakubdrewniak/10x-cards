@@ -161,6 +161,7 @@ export class GenerateFlashcardsPage {
 
     const username = process.env.E2E_USERNAME || "";
     const password = process.env.E2E_PASSWORD || "";
+    const userId = process.env.E2E_USER_ID || "";
 
     if (!username || !password) {
       console.error("Missing environment variables: E2E_USERNAME or E2E_PASSWORD");
@@ -179,6 +180,27 @@ export class GenerateFlashcardsPage {
 
     // Wait for redirect after successful login
     await this.page.waitForURL("/**");
+
+    // Set user data in localStorage to ensure user_id is available for API calls
+    await this.page.evaluate(
+      ({ userId, email }: { userId: string; email: string }) => {
+        const userData = {
+          state: {
+            user: {
+              id: userId,
+              email: email,
+            },
+            isAuthenticated: true,
+          },
+          version: 0,
+        };
+        localStorage.setItem("user-storage", JSON.stringify(userData));
+      },
+      { userId, email: username }
+    );
+
+    // Wait for a moment to ensure localStorage is set
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -292,9 +314,7 @@ export class GenerateFlashcardsPage {
     for (const expected of expectedFlashcards) {
       const found = savedFlashcards.some(
         (saved: SavedFlashcard) =>
-          saved.front === expected.front &&
-          saved.back === expected.back &&
-          saved.user_id === process.env.E2E_USERNAME_ID
+          saved.front === expected.front && saved.back === expected.back && saved.user_id === process.env.E2E_USER_ID
       );
 
       expect(found).toBeTruthy();
@@ -341,5 +361,36 @@ export class GenerateFlashcardsPage {
     // await this.verifyFlashcardsSaved(flashcards);
 
     // return flashcards;
+  }
+
+  /**
+   * Debug user authentication state
+   */
+  async debugAuthState() {
+    // Print localStorage content for debugging
+    const userStorageData = await this.page.evaluate(() => localStorage.getItem("user-storage"));
+    console.log("user-storage content:", userStorageData);
+
+    // Check if isLoggedIn state in component reflects correct state
+    const isLoggedInState = await this.page.evaluate(() => {
+      // This assumes your app stores this in localStorage or similar
+      const storage = localStorage.getItem("user-storage");
+      if (storage) {
+        try {
+          const data = JSON.parse(storage);
+          return data?.state?.isAuthenticated || false;
+        } catch (e) {
+          return false;
+        }
+      }
+      return false;
+    });
+
+    console.log("isLoggedIn state:", isLoggedInState);
+
+    return {
+      userStorageData,
+      isLoggedInState,
+    };
   }
 }

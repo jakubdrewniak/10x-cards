@@ -15,7 +15,7 @@ async function cleanupDatabase() {
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_KEY;
-  const testUserId = process.env.E2E_USERNAME_ID;
+  const testUserId = process.env.E2E_USER_ID;
   const testUsername = process.env.E2E_USERNAME;
   const testPassword = process.env.E2E_PASSWORD;
 

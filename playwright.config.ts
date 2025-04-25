@@ -10,6 +10,20 @@ const __dirname = dirname(__filename);
 // Load environment variables from .env.test
 dotenv.config({ path: resolve(__dirname, ".env.test") });
 
+// Validate required environment variables
+const requiredEnvVars = ["E2E_USERNAME", "E2E_PASSWORD", "E2E_USER_ID"];
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnvVars.join(", ")}`);
+  console.error("Please add these to your .env.test file");
+
+  // Don't fail immediately to allow developers to see this message
+  if (process.env.CI) {
+    process.exit(1);
+  }
+}
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
