@@ -126,6 +126,8 @@ export class GenerateFlashcardsPage {
    * Navigate to the generate flashcards page
    */
   async goto() {
+    // Grant clipboard permissions before navigation
+    await this.page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
     await this.page.goto('/generate');
     // Wait for the main input area to be ready
     await this.inputTextArea.waitFor({ state: 'visible' });
@@ -173,6 +175,13 @@ export class GenerateFlashcardsPage {
    */
   async saveFlashcards() {
     await this.saveButton.click();
+  }
+
+  /**
+   * Get clipboard content
+   */
+  async getClipboardContent(): Promise<string> {
+    return await this.page.evaluate(() => navigator.clipboard.readText());
   }
 
   /**
