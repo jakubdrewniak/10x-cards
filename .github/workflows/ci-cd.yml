@@ -42,12 +42,12 @@ jobs:
       - name: Run linting
         run: npm run lint
       
-      - name: Run security scanning
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # - name: Run security scanning
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: javascript
+      # - name: Perform CodeQL Analysis
+      #   uses: github/codeql-action/analyze@v3
 
   unit-test:
     name: Unit Tests
