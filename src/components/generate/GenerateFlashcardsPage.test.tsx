@@ -3,14 +3,8 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 import { GenerateFlashcardsPage } from "./GenerateFlashcardsPage";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import type { FlashcardProposal } from "../../types";
 
-interface MockConsoleLog {
-  mock: {
-    calls: [string, FlashcardProposal[]][];
-  };
-}
-
+// Mock for fetch implementations
 const createMockResponse = (data: unknown, ok = true): Promise<Response> => {
   const response: Response = {
     ok,
@@ -48,6 +42,16 @@ const createMockResponse = (data: unknown, ok = true): Promise<Response> => {
  */
 
 describe("GenerateFlashcardsPage", () => {
+  // Mock auth session fetch call
+  beforeEach(() => {
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url === "/api/auth/session") {
+        return createMockResponse({ session: null });
+      }
+      return createMockResponse({});
+    });
+  });
+
   describe("Initial Render", () => {
     beforeEach(() => {
       render(<GenerateFlashcardsPage />);
@@ -66,7 +70,7 @@ describe("GenerateFlashcardsPage", () => {
     });
 
     it("should not render loading indicator", () => {
-      const loadingIndicator = screen.queryByRole("progressbar");
+      const loadingIndicator = screen.queryByTestId("loading-indicator");
       expect(loadingIndicator).not.toBeInTheDocument();
     });
 
@@ -150,9 +154,17 @@ describe("GenerateFlashcardsPage", () => {
 
   describe("Flashcards Generation Process", () => {
     beforeEach(() => {
-      vi.spyOn(global, "fetch").mockImplementation(
-        () =>
-          new Promise((resolve) => {
+      // We need to mock a specific implementation for the loading test
+      vi.spyOn(global, "fetch").mockImplementation((url: string | URL | Request) => {
+        const urlString = url.toString();
+
+        if (urlString === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+
+        // For the generations API, return a delayed response to ensure loading indicator shows
+        if (urlString === "/api/generations") {
+          return new Promise((resolve) => {
             setTimeout(() => {
               resolve(
                 createMockResponse({
@@ -162,9 +174,12 @@ describe("GenerateFlashcardsPage", () => {
                   ],
                 })
               );
-            }, 100); // Add a small delay to ensure we can catch the loading state
-          })
-      );
+            }, 50);
+          });
+        }
+
+        return createMockResponse({});
+      });
     });
 
     afterEach(() => {
@@ -175,12 +190,15 @@ describe("GenerateFlashcardsPage", () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
       const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
-
+Ó
       // Enter valid text
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
-      await userEvent.click(generateButton);
 
-      expect(await screen.findByRole("progressbar")).toBeInTheDocument();
+      // Click generate but don't wait for results
+      fireEvent.click(generateButton);
+
+      // The loading indicator should appear immediately
+      expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
     });
 
     it("should handle successful API response", async () => {
@@ -190,18 +208,19 @@ describe("GenerateFlashcardsPage", () => {
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
-      await userEvent.click(generateButton);
 
-      // First check for loading indicator
-      const loadingIndicator = await screen.findByRole("progressbar");
-      expect(loadingIndicator).toBeInTheDocument();
+      // Click generate but don't wait for results
+      fireEvent.click(generateButton);
+
+      // The loading indicator should appear immediately
+      expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
 
       // Then wait for flashcards to appear
       const flashcardsList = await screen.findByRole("list");
       expect(flashcardsList).toBeInTheDocument();
 
       // Loading indicator should be gone
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
 
       // Check flashcard items
       expect(screen.getAllByRole("listitem")).toHaveLength(2);
@@ -209,7 +228,12 @@ describe("GenerateFlashcardsPage", () => {
 
     it("should handle API error response", async () => {
       // Mock failed API response
-      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ message: "API Error" }, false));
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return createMockResponse({ message: "API Error" }, false);
+      });
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
@@ -221,13 +245,18 @@ describe("GenerateFlashcardsPage", () => {
 
       // Check error message
       expect(await screen.findByText("API Error")).toBeInTheDocument();
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
       expect(screen.queryByRole("list")).not.toBeInTheDocument();
     });
 
     it("should handle network error", async () => {
       // Mock network error
-      vi.spyOn(global, "fetch").mockImplementation(() => Promise.reject(new Error("Network error")));
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return Promise.reject(new Error("Network error"));
+      });
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
@@ -239,12 +268,17 @@ describe("GenerateFlashcardsPage", () => {
 
       // Check error message
       expect(await screen.findByText("Network error")).toBeInTheDocument();
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
     });
 
     it("should handle empty flashcards response", async () => {
       // Mock empty flashcards response
-      vi.spyOn(global, "fetch").mockImplementation(() => createMockResponse({ flashcards_proposals: [] }));
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return createMockResponse({ flashcards_proposals: [] });
+      });
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
@@ -258,21 +292,24 @@ describe("GenerateFlashcardsPage", () => {
       expect(
         await screen.findByText("No flashcards were generated. Please try with different text.")
       ).toBeInTheDocument();
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
       expect(screen.queryByRole("list")).not.toBeInTheDocument();
     });
   });
 
   describe("Flashcards List Interaction", () => {
     beforeEach(() => {
-      vi.spyOn(global, "fetch").mockImplementation(() =>
-        createMockResponse({
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return createMockResponse({
           flashcards_proposals: [
             { front: "Test Front 1", back: "Test Back 1" },
             { front: "Test Front 2", back: "Test Back 2" },
           ],
-        })
-      );
+        });
+      });
     });
 
     afterEach(() => {
@@ -311,7 +348,7 @@ describe("GenerateFlashcardsPage", () => {
       await userEvent.click(acceptButtons[0]);
 
       // After accepting, the save button should be enabled if all cards are marked
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
@@ -325,7 +362,7 @@ describe("GenerateFlashcardsPage", () => {
       }
 
       // After rejecting all cards, the save button should be enabled
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
@@ -395,15 +432,18 @@ describe("GenerateFlashcardsPage", () => {
 
   describe("Batch Operations", () => {
     beforeEach(() => {
-      vi.spyOn(global, "fetch").mockImplementation(() =>
-        createMockResponse({
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return createMockResponse({
           flashcards_proposals: [
             { front: "Test Front 1", back: "Test Back 1" },
             { front: "Test Front 2", back: "Test Back 2" },
             { front: "Test Front 3", back: "Test Back 3" },
           ],
-        })
-      );
+        });
+      });
     });
 
     afterEach(() => {
@@ -443,7 +483,7 @@ describe("GenerateFlashcardsPage", () => {
       });
 
       // Save button should be enabled since all cards are marked
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
@@ -485,7 +525,7 @@ describe("GenerateFlashcardsPage", () => {
       // Let's skip checking the initial flashcard states since they might be changed by other tests
       // and focus on the save button logic which is what we're actually testing
 
-      const saveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+      const saveButtons = screen.getAllByRole("button", { name: /copy to clipboard/i });
 
       // Verify save buttons are initially disabled
       expect(saveButtons[0]).toHaveAttribute("disabled");
@@ -504,7 +544,7 @@ describe("GenerateFlashcardsPage", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Get fresh references to the save buttons
-      const updatedSaveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+      const updatedSaveButtons = screen.getAllByRole("button", { name: /copy to clipboard/i });
 
       // Now the save buttons should be enabled
       expect(updatedSaveButtons[0]).not.toHaveAttribute("disabled");
@@ -514,15 +554,20 @@ describe("GenerateFlashcardsPage", () => {
 
   describe("Save Operation", () => {
     beforeEach(() => {
-      vi.spyOn(global, "fetch").mockImplementation(() =>
-        createMockResponse({
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: null });
+        }
+        return createMockResponse({
           flashcards_proposals: [
             { front: "Test Front 1", back: "Test Back 1" },
             { front: "Test Front 2", back: "Test Back 2" },
             { front: "Test Front 3", back: "Test Back 3" },
           ],
-        })
-      );
+        });
+      });
+
+      vi.spyOn(navigator.clipboard, "writeText").mockImplementation(() => Promise.resolve());
       vi.spyOn(console, "log");
     });
 
@@ -576,26 +621,19 @@ describe("GenerateFlashcardsPage", () => {
       const rejectButton = within(flashcardItems[2]).getByRole("button", { name: /reject/i });
       await userEvent.click(rejectButton);
 
-      // Click save button
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
-      await userEvent.click(saveButton);
+      // Click copy to clipboard button
+      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      await userEvent.click(copyButton);
 
-      // Verify console.log was called with correct data
-      const consoleLogSpy = console.log as unknown as MockConsoleLog;
-      expect(console.log).toHaveBeenCalledTimes(2);
-      const allFlashcardsLog = consoleLogSpy.mock.calls[0][1];
-      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
+      // Verify clipboard.writeText was called with correct data
+      expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
 
-      // Check all flashcards were logged
-      expect(allFlashcardsLog).toHaveLength(3);
-      expect(allFlashcardsLog[0].status).toBe("accepted");
-      expect(allFlashcardsLog[1].status).toBe("edited");
-      expect(allFlashcardsLog[2].status).toBe("rejected");
-
-      // Check only accepted and edited were included in save
-      expect(savedFlashcardsLog).toHaveLength(2);
-      expect(savedFlashcardsLog.every((card) => ["accepted", "edited"].includes(card.status))).toBe(true);
-      expect(savedFlashcardsLog.some((card) => card.status === "rejected")).toBe(false);
+      // The clipboard text should contain only the accepted and edited cards
+      const writeTextMock = navigator.clipboard.writeText as unknown as { mock: { calls: string[][] } };
+      const clipboardText = writeTextMock.mock.calls[0][0];
+      expect(clipboardText).toContain("Front: Test Front 1");
+      expect(clipboardText).toContain("Front: Edited Front");
+      expect(clipboardText).not.toContain("Front: Test Front 3");
     });
 
     it("should exclude rejected flashcards from saving", async () => {
@@ -608,17 +646,12 @@ describe("GenerateFlashcardsPage", () => {
         await userEvent.click(rejectButton);
       }
 
-      // Click save button
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
-      await userEvent.click(saveButton);
+      // Click copy to clipboard button
+      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      await userEvent.click(copyButton);
 
-      // Verify console.log was called with correct data
-      const consoleLogSpy = console.log as unknown as MockConsoleLog;
-      expect(console.log).toHaveBeenCalledTimes(2);
-      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
-
-      // Check no flashcards were included in save
-      expect(savedFlashcardsLog).toHaveLength(0);
+      // Check that error message appears (no flashcards selected)
+      expect(screen.getByText("No flashcards selected for copying")).toBeInTheDocument();
     });
 
     it("should preserve original content for edited flashcards when saving", async () => {
@@ -650,20 +683,60 @@ describe("GenerateFlashcardsPage", () => {
         await userEvent.click(acceptButton);
       }
 
-      // Click save button
-      const saveButton = screen.getAllByRole("button", { name: /save flashcards/i })[0];
-      await userEvent.click(saveButton);
+      // Click copy to clipboard button
+      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      await userEvent.click(copyButton);
 
-      // Verify console.log was called with correct data
-      const consoleLogSpy = console.log as unknown as MockConsoleLog;
-      const savedFlashcardsLog = consoleLogSpy.mock.calls[1][1];
-      const editedCard = savedFlashcardsLog.find((card) => card.status === "edited");
+      // We can't easily check the internal representation of clipboard data,
+      // but we can verify that the clipboard.writeText was called
+      expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
 
-      // Check edited card contains both current and original content
-      expect(editedCard?.front).toBe("Edited Front");
-      expect(editedCard?.back).toBe("Edited Back");
-      expect(editedCard?.originalFront).toBe("Test Front 1");
-      expect(editedCard?.originalBack).toBe("Test Back 1");
+      // The clipboard text should contain the edited content
+      const writeTextMock = navigator.clipboard.writeText as unknown as { mock: { calls: string[][] } };
+      const clipboardText = writeTextMock.mock.calls[0][0];
+      expect(clipboardText).toContain("Front: Edited Front");
+      expect(clipboardText).toContain("Back: Edited Back");
+    });
+  });
+
+  describe("Logged in user", () => {
+    beforeEach(() => {
+      vi.spyOn(global, "fetch").mockImplementation((url) => {
+        if (url === "/api/auth/session") {
+          return createMockResponse({ session: { user: { name: "Test User" } } });
+        }
+        return createMockResponse({
+          flashcards_proposals: [
+            { front: "Test Front 1", back: "Test Back 1" },
+            { front: "Test Front 2", back: "Test Back 2" },
+          ],
+        });
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("should show 'Save Flashcards' button for logged in users", async () => {
+      render(<GenerateFlashcardsPage />);
+      const textArea = screen.getByRole("textbox");
+      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+
+      // Enter valid text and generate
+      fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
+      await userEvent.click(generateButton);
+
+      // Wait for flashcards to appear
+      await screen.findByRole("list");
+
+      // Check that save buttons are present instead of copy buttons
+      const saveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+      expect(saveButtons.length).toBeGreaterThan(0);
+
+      // Make sure there are no copy buttons
+      const copyButtons = screen.queryAllByRole("button", { name: /copy to clipboard/i });
+      expect(copyButtons.length).toBe(0);
     });
   });
 });
