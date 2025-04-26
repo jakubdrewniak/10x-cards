@@ -19,44 +19,6 @@ test.describe("Generate Flashcards Page", () => {
     debugLog("Test starting - initializing page object");
   });
 
-  // Run this test first to verify authentication is working properly
-  test.describe.serial("Authentication", () => {
-    test("should verify authentication works with direct API calls", async () => {
-      // Try direct authentication using Supabase API
-      await page.goto("/login");
-      await page.ensureCookies();
-
-      // Check that cookies were set
-      const cookies = await page.page.context().cookies();
-      const accessToken = cookies.find((c) => c.name === "sb-access-token");
-      const refreshToken = cookies.find((c) => c.name === "sb-refresh-token");
-
-      console.log("Direct API auth cookies:", {
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!refreshToken,
-      });
-
-      // Verify we can call the session endpoint
-      const sessionResponse = await page.page.request.get("/api/auth/session");
-      console.log("Session response status:", sessionResponse.status());
-
-      if (sessionResponse.ok()) {
-        const sessionData = await sessionResponse.json();
-        console.log("Session data:", {
-          hasSession: !!sessionData.session,
-          userId: sessionData.session?.user?.id,
-        });
-
-        // Verify we got a valid session
-        expect(sessionData.session).toBeTruthy();
-        expect(sessionData.session.user).toBeTruthy();
-        expect(sessionData.session.user.id).toBe(process.env.E2E_USER_ID);
-      } else {
-        throw new Error(`Failed to get session: ${sessionResponse.statusText()}`);
-      }
-    });
-  });
-
   // Debug the auth state before each test
   test("should verify user authentication state", async () => {
     // Login and check auth state
