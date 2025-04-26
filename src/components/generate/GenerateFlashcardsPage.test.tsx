@@ -190,7 +190,7 @@ describe("GenerateFlashcardsPage", () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
       const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
-Ó
+
       // Enter valid text
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
 

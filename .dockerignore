@@ -1,0 +1,46 @@
+# Version control
+.git
+.github
+.gitignore
+
+# Dependencies
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output
+dist
+.astro
+
+# Testing
+coverage
+.nyc_output
+test-results
+playwright-report
+.coverage
+
+# Editor directories and files
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Other
+README.md
+LICENSE
+*.md
+.husky
+e2e 
