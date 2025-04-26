@@ -181,6 +181,16 @@ export class GenerateFlashcardsPage {
     // Wait for redirect after successful login
     await this.page.waitForURL("/**");
 
+    // Debug login - Check if cookies were set
+    const cookies = await this.page.context().cookies();
+    console.log(
+      "Cookies after login:",
+      cookies.map((c) => c.name)
+    );
+
+    const authCookies = cookies.filter((c) => c.name.startsWith("sb-"));
+    console.log("Auth cookies:", authCookies.length > 0 ? "PRESENT" : "MISSING");
+
     // Set user data in localStorage to ensure user_id is available for API calls
     await this.page.evaluate(
       ({ userId, email }: { userId: string; email: string }) => {
@@ -204,10 +214,142 @@ export class GenerateFlashcardsPage {
   }
 
   /**
+   * Check for proper authentication setup and debug session issues
+   */
+  async ensureProperAuth() {
+    const cookies = await this.page.context().cookies();
+    const accessToken = cookies.find((c) => c.name === "sb-access-token");
+    const refreshToken = cookies.find((c) => c.name === "sb-refresh-token");
+
+    console.log("[AUTH-DEBUG] Cookie check:", {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+    });
+
+    // If cookies are missing, get them from the API directly
+    if (!accessToken || !refreshToken) {
+      console.log("[AUTH-DEBUG] Auth cookies missing, attempting to retrieve session data");
+
+      // Call a special debug endpoint or use the API to get session info
+      const sessionResponse = await this.page.request.get("/api/auth/session");
+      console.log("[AUTH-DEBUG] Session response status:", sessionResponse.status());
+
+      if (sessionResponse.ok()) {
+        try {
+          const sessionData = await sessionResponse.json();
+          console.log("[AUTH-DEBUG] Session data available:", !!sessionData.session);
+        } catch (e) {
+          console.error("[AUTH-DEBUG] Failed to parse session response");
+        }
+      }
+    }
+
+    return {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+    };
+  }
+
+  /**
+   * Manually set auth cookies if they're missing
+   */
+  async ensureCookies() {
+    const cookies = await this.page.context().cookies();
+    const accessToken = cookies.find((c) => c.name === "sb-access-token");
+    const refreshToken = cookies.find((c) => c.name === "sb-refresh-token");
+
+    if (!accessToken || !refreshToken) {
+      console.log("[AUTH-DEBUG] Manually setting auth cookies...");
+
+      // Get credentials from environment variables
+      const email = process.env.E2E_USERNAME;
+      const password = process.env.E2E_PASSWORD;
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_KEY;
+
+      if (!email || !password || !supabaseUrl || !supabaseKey) {
+        console.log("[AUTH-DEBUG] Missing required environment variables for auth");
+        return;
+      }
+
+      try {
+        // Make a direct API call to Supabase to authenticate
+        console.log("[AUTH-DEBUG] Creating a new session via Supabase API");
+
+        const authResponse = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+
+        if (!authResponse.ok) {
+          const errorData = await authResponse.json();
+          console.error("[AUTH-DEBUG] Failed to authenticate with Supabase:", errorData);
+          return;
+        }
+
+        const authData = await authResponse.json();
+        const accessToken = authData.access_token;
+        const refreshToken = authData.refresh_token;
+
+        console.log("[AUTH-DEBUG] Successfully obtained new tokens from Supabase");
+
+        // Set cookies in the browser context
+        await this.page.context().addCookies([
+          {
+            name: "sb-access-token",
+            value: accessToken,
+            domain: new URL(process.env.SUPABASE_URL || "http://localhost:3000").hostname,
+            path: "/",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Lax",
+            expires: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+          },
+          {
+            name: "sb-refresh-token",
+            value: refreshToken,
+            domain: new URL(process.env.SUPABASE_URL || "http://localhost:3000").hostname,
+            path: "/",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Lax",
+            expires: Math.floor(Date.now() / 1000) + 86400, // 24 hours from now
+          },
+        ]);
+
+        // Verify cookies were set
+        const updatedCookies = await this.page.context().cookies();
+        const updatedAccessToken = updatedCookies.find((c) => c.name === "sb-access-token");
+        const updatedRefreshToken = updatedCookies.find((c) => c.name === "sb-refresh-token");
+
+        console.log("[AUTH-DEBUG] Updated cookies:", {
+          hasAccessToken: !!updatedAccessToken,
+          hasRefreshToken: !!updatedRefreshToken,
+        });
+      } catch (error) {
+        console.error("[AUTH-DEBUG] Error setting auth cookies:", error);
+      }
+    }
+  }
+
+  /**
    * Navigate to generate page and ensure user is logged in
    */
   async gotoAsLoggedInUser() {
     await this.login();
+
+    // Check auth state and ensure cookies
+    await this.ensureProperAuth();
+    await this.ensureCookies();
+
     await this.goto();
   }
 

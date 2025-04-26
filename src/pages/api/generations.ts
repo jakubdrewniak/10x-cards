@@ -4,6 +4,45 @@ import type { GenerateFlashcardsResponseDTO, GenerateFlashcardsCommand, AIFlashc
 import type { SupabaseClient } from "../../db/supabase.client";
 import { OpenRouterService, FLASHCARD_GENERATION_SCHEMA } from "../../lib/openrouter.service";
 
+// Helper function to safely log auth details
+const logAuthState = async (request: Request, locals: App.Locals, supabase: SupabaseClient) => {
+  try {
+    // Log request info
+    const cookieHeader = request.headers.get("cookie") || "";
+    const authCookies = {
+      hasAccessToken: cookieHeader.includes("sb-access-token"),
+      hasRefreshToken: cookieHeader.includes("sb-refresh-token"),
+    };
+
+    // Log locals user
+    console.log("[AUTH-DEBUG] Generations API - Locals user:", locals.user);
+
+    // Try to get user from Supabase
+    const { data, error } = await supabase.auth.getUser();
+
+    console.log("[AUTH-DEBUG] Generations API - Full auth state:", {
+      request: {
+        cookiesPresent: !!cookieHeader,
+        authCookies,
+      },
+      locals: {
+        userPresent: !!locals.user,
+        userId: locals.user?.id,
+      },
+      supabase: {
+        userPresent: !!data.user,
+        userId: data.user?.id,
+        error: error ? { message: error.message } : null,
+      },
+    });
+
+    return { user: data.user, error };
+  } catch (e) {
+    console.error("[AUTH-DEBUG] Failed to log auth state:", e);
+    return { user: null, error: e instanceof Error ? e : new Error("Unknown error") };
+  }
+};
+
 // OpenRouter response type
 interface OpenRouterResponse {
   choices: {
@@ -45,11 +84,26 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase as SupabaseClient;
 
+    // Log authentication state
+    const authState = await logAuthState(request, locals, supabase);
+
+    // Debug logging for cookies
+    console.log("[DEBUG-AUTH] Cookie headers:", request.headers.get("cookie"));
+
+    // Debug logging for locals.user
+    console.log("[DEBUG-AUTH] Locals user:", locals.user);
+
     // Get the current user from the session
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
+
+    // Debug logging for user from Supabase auth
+    console.log("[DEBUG-AUTH] Supabase auth user:", {
+      user,
+      authError: authError ? { message: authError.message, status: authError.status } : null,
+    });
 
     // Remove the unauthorized check since we want to allow guest users
     // if (authError || !user) {

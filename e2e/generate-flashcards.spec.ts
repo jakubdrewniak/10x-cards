@@ -1,11 +1,60 @@
 import { test, expect } from "@playwright/test";
 import { GenerateFlashcardsPage } from "./page-objects/generate-flashcards.page";
 
+// Enable debugging with environment variable or command line flag
+const DEBUG_AUTH = process.env.DEBUG_AUTH === "true" || process.env.npm_config_debug === "true";
+
+// Helper to log only when debugging is enabled
+const debugLog = (message: string, ...args: any[]) => {
+  if (DEBUG_AUTH) {
+    console.log(`[TEST-DEBUG] ${message}`, ...args);
+  }
+};
+
 test.describe("Generate Flashcards Page", () => {
   let page: GenerateFlashcardsPage;
 
   test.beforeEach(async ({ page: p }) => {
     page = new GenerateFlashcardsPage(p);
+    debugLog("Test starting - initializing page object");
+  });
+
+  // Run this test first to verify authentication is working properly
+  test.describe.serial("Authentication", () => {
+    test("should verify authentication works with direct API calls", async () => {
+      // Try direct authentication using Supabase API
+      await page.goto("/login");
+      await page.ensureCookies();
+
+      // Check that cookies were set
+      const cookies = await page.page.context().cookies();
+      const accessToken = cookies.find((c) => c.name === "sb-access-token");
+      const refreshToken = cookies.find((c) => c.name === "sb-refresh-token");
+
+      console.log("Direct API auth cookies:", {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+      });
+
+      // Verify we can call the session endpoint
+      const sessionResponse = await page.page.request.get("/api/auth/session");
+      console.log("Session response status:", sessionResponse.status());
+
+      if (sessionResponse.ok()) {
+        const sessionData = await sessionResponse.json();
+        console.log("Session data:", {
+          hasSession: !!sessionData.session,
+          userId: sessionData.session?.user?.id,
+        });
+
+        // Verify we got a valid session
+        expect(sessionData.session).toBeTruthy();
+        expect(sessionData.session.user).toBeTruthy();
+        expect(sessionData.session.user.id).toBe(process.env.E2E_USER_ID);
+      } else {
+        throw new Error(`Failed to get session: ${sessionResponse.statusText()}`);
+      }
+    });
   });
 
   // Debug the auth state before each test
@@ -13,6 +62,17 @@ test.describe("Generate Flashcards Page", () => {
     // Login and check auth state
     await page.gotoAsLoggedInUser();
     const authState = await page.debugAuthState();
+
+    // Print detailed auth information
+    debugLog("Full authentication state:", authState);
+
+    // Check cookies directly from the page
+    const cookies = await page.page.context().cookies();
+    const authCookies = cookies.filter((c) => c.name.startsWith("sb-"));
+    debugLog(
+      "Auth cookies in test context:",
+      authCookies.map((c) => c.name)
+    );
 
     // Verify user is properly authenticated
     expect(authState.isLoggedInState).toBe(true);
@@ -52,7 +112,10 @@ test.describe("Generate Flashcards Page", () => {
       // Login and verify authentication
       await page.gotoAsLoggedInUser();
       const authState = await page.debugAuthState();
-      console.log("Auth state before generation:", authState);
+      debugLog("Auth state before generation:", authState);
+
+      // Validate user identity in Supabase
+      await validateUserSession(page);
 
       // Use the complete flow method which handles login, generation, and verification
       const flashcards = await page.completeFlashcardFlow(sampleText);
@@ -130,3 +193,30 @@ test.describe("Generate Flashcards Page", () => {
     }
   });
 });
+
+/**
+ * Helper function to validate user session on the server side
+ */
+async function validateUserSession(page: GenerateFlashcardsPage) {
+  // Make a request to the session endpoint to check auth state
+  const sessionResponse = await page.page.request.get("/api/auth/session");
+  debugLog("Session response status:", sessionResponse.status());
+
+  if (sessionResponse.ok()) {
+    try {
+      const sessionData = await sessionResponse.json();
+      debugLog("Session data from API:", {
+        hasSession: !!sessionData.session,
+        user: sessionData.user,
+        cookies: sessionData.cookies,
+      });
+
+      // If no session but we think we're logged in, there's an issue
+      if (!sessionData.session) {
+        debugLog("WARNING: No valid session found on server despite UI login!");
+      }
+    } catch (e) {
+      debugLog("Failed to parse session response:", e);
+    }
+  }
+}
