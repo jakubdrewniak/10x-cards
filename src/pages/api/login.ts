@@ -63,10 +63,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       { status: 200, headers }
     );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), 
-      { status: 500, headers }
-    );
+  } catch {
+    return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), {
+      status: 500,
+      headers,
+    });
   }
-}; 
+};

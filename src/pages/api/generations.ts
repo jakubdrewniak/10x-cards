@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const supabase = locals.supabase as SupabaseClient;
 
     // Log authentication state
-    const authState = await logAuthState(request, locals, supabase);
+    await logAuthState(request, locals, supabase);
 
     // Debug logging for cookies
     console.log("[DEBUG-AUTH] Cookie headers:", request.headers.get("cookie"));
@@ -120,7 +120,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // }
 
     // Validate Supabase connection first
-    const { data: healthCheck, error: healthError } = await supabase.from("generations").select("id").limit(1);
+    const { error: healthError } = await supabase.from("generations").select("id").limit(1);
 
     if (healthError) {
       console.error("[DEBUG] Database connection error:", {

@@ -238,7 +238,7 @@ export class GenerateFlashcardsPage {
         try {
           const sessionData = await sessionResponse.json();
           console.log("[AUTH-DEBUG] Session data available:", !!sessionData.session);
-        } catch (e) {
+        } catch {
           console.error("[AUTH-DEBUG] Failed to parse session response");
         }
       }
@@ -521,7 +521,7 @@ export class GenerateFlashcardsPage {
         try {
           const data = JSON.parse(storage);
           return data?.state?.isAuthenticated || false;
-        } catch (e) {
+        } catch {
           return false;
         }
       }

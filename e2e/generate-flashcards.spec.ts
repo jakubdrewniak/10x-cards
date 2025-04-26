@@ -5,7 +5,7 @@ import { GenerateFlashcardsPage } from "./page-objects/generate-flashcards.page"
 const DEBUG_AUTH = process.env.DEBUG_AUTH === "true" || process.env.npm_config_debug === "true";
 
 // Helper to log only when debugging is enabled
-const debugLog = (message: string, ...args: any[]) => {
+const debugLog = (message: string, ...args: unknown[]) => {
   if (DEBUG_AUTH) {
     console.log(`[TEST-DEBUG] ${message}`, ...args);
   }
@@ -42,6 +42,7 @@ test.describe("Generate Flashcards Page", () => {
   });
 
   // TODO: finish test when flashcards list is implemented
+  // eslint-disable-next-line no-empty-pattern
   test("should generate and save flashcards as logged in user", async ({}, testInfo) => {
     testInfo.setTimeout(60000); // Set timeout to 60 seconds for this test
 
@@ -80,7 +81,8 @@ test.describe("Generate Flashcards Page", () => {
       await validateUserSession(page);
 
       // Use the complete flow method which handles login, generation, and verification
-      const flashcards = await page.completeFlashcardFlow(sampleText);
+      // const flashcards =
+      await page.completeFlashcardFlow(sampleText);
 
       // // Additional verification for specific flashcard content
       // expect(flashcards.length).toBeGreaterThan(0);
@@ -97,6 +99,7 @@ test.describe("Generate Flashcards Page", () => {
     }
   });
 
+  // eslint-disable-next-line no-empty-pattern
   test("should verify flashcards are displayed correctly on page", async ({}, testInfo) => {
     testInfo.setTimeout(45000);
 

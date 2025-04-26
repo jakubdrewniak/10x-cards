@@ -11,13 +11,16 @@ export const onRequest = defineMiddleware(async ({ cookies, redirect, url, local
 
   // Initialize user state and Supabase client
   locals.user = null;
-  
+
   // Create new Supabase client instance with session if tokens exist
   if (accessToken && refreshToken) {
     // Set the session in the Supabase client
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.setSession({
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabaseClient.auth.setSession({
       access_token: accessToken,
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
     });
 
     if (!sessionError && session) {

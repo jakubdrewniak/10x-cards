@@ -111,9 +111,9 @@ export function LoginForm() {
             <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
               {isLoading ? "Logowanie..." : "Zaloguj się"}
             </Button>
-            <Button 
-              type="button" 
-              variant="ghost" 
+            <Button
+              type="button"
+              variant="ghost"
               className="w-full"
               onClick={() => window.location.replace("/generate")}
             >

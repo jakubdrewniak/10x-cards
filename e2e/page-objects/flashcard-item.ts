@@ -1,4 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from "@playwright/test";
 
 /**
  * Page Object Model for individual flashcard items
@@ -27,21 +27,21 @@ export class FlashcardItem {
    * Get the front content of the flashcard
    */
   async getFrontContent(): Promise<string> {
-    return this.frontContent.textContent() || '';
+    return this.frontContent.textContent() || "";
   }
 
   /**
    * Get the back content of the flashcard
    */
   async getBackContent(): Promise<string> {
-    return this.backContent.textContent() || '';
+    return this.backContent.textContent() || "";
   }
 
   /**
    * Get the current status of the flashcard
    */
   async getStatus(): Promise<string> {
-    return this.status.textContent() || '';
+    return this.status.textContent() || "";
   }
 
   /**
@@ -58,8 +58,8 @@ export class FlashcardItem {
   async edit(front: string, back: string) {
     const editFront = this.page.getByTestId(`edit-front-${this.index}`);
     const editBack = this.page.getByTestId(`edit-back-${this.index}`);
-    
+
     await editFront.fill(front);
     await editBack.fill(back);
   }
-} 
+}

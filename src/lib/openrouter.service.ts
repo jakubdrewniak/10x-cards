@@ -43,7 +43,7 @@ interface OpenRouterPayload {
     type: string;
     schema: JsonSchemaValue;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ResponseFormat {

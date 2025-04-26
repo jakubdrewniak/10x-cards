@@ -15,7 +15,7 @@ export function FlashcardsList({ proposals, onAccept, onEdit, onReject }: Flashc
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Generated Flashcards ({proposals.length})</h2>
-      <ul className="grid gap-4" role="list">
+      <ul className="grid gap-4">
         {proposals.map((proposal) => (
           <li key={proposal.id}>
             <FlashcardItem

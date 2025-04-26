@@ -270,9 +270,9 @@ export function GenerateFlashcardsPage() {
                 disabled={false}
                 flashcardsCount={viewModel.flashcardsProposals.length}
               />
-              <Button 
-                onClick={isLoggedIn ? handleSave : handleCopyToClipboard} 
-                disabled={!areAllProposalsMarked()} 
+              <Button
+                onClick={isLoggedIn ? handleSave : handleCopyToClipboard}
+                disabled={!areAllProposalsMarked()}
                 variant="default"
                 data-testid="save-flashcards-button"
               >
@@ -288,10 +288,10 @@ export function GenerateFlashcardsPage() {
             />
 
             <div className="flex justify-end mt-4">
-              <Button 
-                onClick={isLoggedIn ? handleSave : handleCopyToClipboard} 
-                disabled={!areAllProposalsMarked()} 
-                variant="default" 
+              <Button
+                onClick={isLoggedIn ? handleSave : handleCopyToClipboard}
+                disabled={!areAllProposalsMarked()}
+                variant="default"
                 size="lg"
               >
                 {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}

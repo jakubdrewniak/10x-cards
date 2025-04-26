@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Skeleton } from "../ui/skeleton";
 
 interface LoadingIndicatorProps {

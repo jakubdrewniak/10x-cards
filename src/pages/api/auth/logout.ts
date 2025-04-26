@@ -30,7 +30,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     cookies.delete("sb-refresh-token", { path: "/" });
 
     return new Response(JSON.stringify({ message: "Wylogowano pomyślnie" }), { status: 200, headers });
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), {
       status: 500,
       headers,
