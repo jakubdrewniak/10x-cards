@@ -125,3 +125,9 @@ export interface FlashcardProposal extends AIFlashcardProposalDTO {
   originalFront?: string;
   originalBack?: string;
 }
+
+// Form data for creating/updating flashcards
+export interface FlashcardFormData {
+  front: string;
+  back: string;
+}

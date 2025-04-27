@@ -1,0 +1,35 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { FlashcardsPage } from "@/components/flashcards/FlashcardsPage";
+import { createSupabaseServerInstance } from "@/db/supabase.client";
+
+const supabase = await createSupabaseServerInstance(Astro);
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+// Redirect if not authenticated
+if (!session) {
+  return Astro.redirect("/login");
+}
+
+// Get initial flashcards data
+const { data: flashcardsData } = await supabase
+  .from("flashcards")
+  .select("*")
+  .order("created_at", { ascending: false })
+  .range(0, 9); // First page with 10 items
+
+const initialData = {
+  data: flashcardsData || [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0, // Will be updated by the client component
+  },
+};
+---
+
+<Layout title="Flashcards">
+  <FlashcardsPage client:load initialData={initialData} />
+</Layout>
