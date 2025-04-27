@@ -1,4 +1,4 @@
-# Status implementacji widoku Generate Flashcards
+e# Status implementacji widoku Generate Flashcards
 
 ## Zrealizowane kroki
 

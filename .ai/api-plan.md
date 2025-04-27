@@ -104,18 +104,7 @@
    - **Success Codes**: 200 OK
    - **Error Codes**: 400 Bad Request, 404 Not Found, 401 Unauthorized
 
-5. **Delete Flashcard**
-   - **Method**: DELETE
-   - **URL**: `/flashcards/:id`
-   - **Description**: Deletes a specified flashcard.
-   - **Response JSON**:
-     ```json
-     { "message": "Flashcard deleted successfully" }
-     ```
-   - **Success Codes**: 200 OK
-   - **Error Codes**: 404 Not Found
-
-6. **Bulk Delete Flashcards**
+5. **Bulk Delete Flashcards**
    - **Method**: DELETE
    - **URL**: `/flashcards`
    - **Description**: Deletes multiple flashcards at once based on a list of IDs.
