@@ -1,8 +1,9 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
-import type { CreateFlashcardsCommand } from "../../types";
-import type { SupabaseClient } from "../../db/supabase.client";
-import { FlashcardService } from "../../lib/services/flashcard.service";
+import type { CreateFlashcardsCommand } from "../../../types";
+import type { SupabaseClient } from "../../../db/supabase.client";
+import { FlashcardService } from "../../../lib/services/flashcard.service";
+import { flashcardsQuerySchema, bulkDeleteSchema } from "../../../lib/schemas/flashcard.schema";
 
 // Zod schema for single flashcard validation
 const createFlashcardSchema = z.object({
@@ -23,6 +24,55 @@ const createFlashcardsCommandSchema = z.object({
 });
 
 export const prerender = false;
+
+export const GET: APIRoute = async ({ locals, url }) => {
+  try {
+    // Parse and validate query parameters
+    const result = flashcardsQuerySchema.safeParse({
+      page: url.searchParams.get("page"),
+      limit: url.searchParams.get("limit"),
+      sortBy: url.searchParams.get("sortBy"),
+      order: url.searchParams.get("order"),
+    });
+
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({
+          message: "Invalid query parameters",
+          details: result.error.flatten().fieldErrors,
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Get flashcards from service
+    const flashcardService = new FlashcardService(locals.supabase);
+    const response = await flashcardService.listFlashcards(result.data);
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      const status = error.name === "FlashcardServiceError" && error.message.includes("401") ? 401 : 500;
+      return new Response(
+        JSON.stringify({
+          message: error.message,
+        }),
+        { status }
+      );
+    }
+    return new Response(
+      JSON.stringify({
+        message: "An unexpected error occurred",
+      }),
+      { status: 500 }
+    );
+  }
+};
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
@@ -63,16 +113,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const command = validationResult.data as CreateFlashcardsCommand;
 
-    // Add user_id to each flashcard
-    const flashcardsWithUserId = command.flashcards.map((flashcard) => ({
-      ...flashcard,
-      user_id: user.id,
-    }));
-
     // Create flashcards using the service
     const flashcardService = new FlashcardService(supabase);
     const createdFlashcards = await flashcardService.createFlashcards({
-      flashcards: flashcardsWithUserId,
+      flashcards: command.flashcards,
     });
 
     return new Response(JSON.stringify({ flashcards: createdFlashcards }), {
@@ -118,6 +162,62 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error occurred",
+      }),
+      { status: 500 }
+    );
+  }
+};
+
+export const DELETE: APIRoute = async ({ request, locals }) => {
+  try {
+    // Parse and validate request body
+    const body = await request.json();
+    const validationResult = bulkDeleteSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Validation failed",
+          details: validationResult.error.errors,
+        }),
+        { status: 400 }
+      );
+    }
+
+    const flashcardService = new FlashcardService(locals.supabase);
+    await flashcardService.deleteFlashcards(validationResult.data.ids);
+
+    return new Response(
+      JSON.stringify({
+        message: `Successfully deleted ${validationResult.data.ids.length} flashcard(s)`,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      const status =
+        error.name === "FlashcardServiceError" && error.message.includes("401")
+          ? 401
+          : error.name === "FlashcardServiceError" && error.message.includes("404")
+            ? 404
+            : 500;
+
+      return new Response(
+        JSON.stringify({
+          error: error.message,
+          details: error.name === "FlashcardServiceError" ? (error as FlashcardServiceError).details : undefined,
+        }),
+        { status }
+      );
+    }
+    return new Response(
+      JSON.stringify({
+        error: "An unexpected error occurred",
       }),
       { status: 500 }
     );

@@ -56,7 +56,6 @@ interface FlashcardsQueryParams {
   limit?: number;
   sortBy?: string;
   order?: 'asc' | 'desc';
-  filterSource?: 'ai-full' | 'ai-edited' | 'manual';
 }
 
 // Zod schemas for validation
@@ -65,7 +64,6 @@ const flashcardsQuerySchema = z.object({
   limit: z.number().optional().default(10),
   sortBy: z.string().optional(),
   order: z.enum(['asc', 'desc']).optional(),
-  filterSource: z.enum(['ai-full', 'ai-edited', 'manual']).optional()
 });
 
 const updateFlashcardSchema = z.object({

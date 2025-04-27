@@ -18,7 +18,7 @@
    - **Method**: GET
    - **URL**: `/flashcards`
    - **Description**: Retrieves a paginated list of flashcards for the authenticated user.
-   - **Query Parameters**: `page` (default: 1), `limit` (default: 10), `sortBy`, `order`, `filterSource` (values: `ai-full`, `ai-edited`, `manual`).
+   - **Query Parameters**: `page` (default: 1), `limit` (default: 10), `sortBy`, `order`.
    - **Response JSON**:
      ```json
      {
