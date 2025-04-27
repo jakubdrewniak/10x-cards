@@ -63,6 +63,9 @@ jobs:
       E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
       E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
       E2E_USER_ID: ${{ secrets.E2E_USER_ID }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_API_URL: ${{ secrets.OPENROUTER_API_URL }}
+      OPENROUTER_DEFAULT_MODEL: ${{ secrets.OPENROUTER_DEFAULT_MODEL }}
     steps:
       - uses: actions/checkout@v4
       
