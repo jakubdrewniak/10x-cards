@@ -1,4 +1,4 @@
-# 10x-cards
+# 10x-cards by AI
 
 A web application for efficient flashcard creation and learning powered by AI.
 
