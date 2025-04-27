@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useUserStore } from "@/lib/stores/userStore";
 
 const registerSchema = z
   .object({
@@ -34,11 +35,41 @@ export function RegisterForm() {
   });
 
   const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   async function onSubmit(data: RegisterFormValues) {
     setError(null);
-    // Form submission will be implemented later
-    console.log(data);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Wystąpił błąd podczas rejestracji");
+      }
+
+      // Update user store
+      useUserStore.getState().setUser(result.user);
+
+      // Redirect to generate page
+      window.location.replace("/generate");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił nieznany błąd");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -62,7 +93,7 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="twoj@email.com" {...field} />
+                    <Input type="email" placeholder="twoj@email.com" {...field} data-testid="email-input" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -75,7 +106,7 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Hasło</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} data-testid="password-input" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -88,7 +119,7 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Potwierdź hasło</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input type="password" {...field} data-testid="confirm-password-input" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,8 +127,8 @@ export function RegisterForm() {
             />
           </CardContent>
           <CardFooter className="flex flex-col gap-4 w-full">
-            <Button type="submit" className="w-full">
-              Zarejestruj się
+            <Button type="submit" className="w-full" disabled={isLoading} data-testid="register-button">
+              {isLoading ? "Rejestracja..." : "Zarejestruj się"}
             </Button>
             <div className="flex justify-center gap-2 text-sm">
               <span className="text-muted-foreground">Masz już konto?</span>

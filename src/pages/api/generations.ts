@@ -5,7 +5,7 @@ import type { SupabaseClient } from "../../db/supabase.client";
 import { OpenRouterService, FLASHCARD_GENERATION_SCHEMA } from "../../lib/openrouter.service";
 
 // Helper function to safely log auth details
-const logAuthState = async (request: Request, locals: App.Locals, supabase: SupabaseClient) => {
+const logAuthState = async (request: Request, locals: App.Locals) => {
   try {
     // Log request info
     const cookieHeader = request.headers.get("cookie") || "";
@@ -18,7 +18,7 @@ const logAuthState = async (request: Request, locals: App.Locals, supabase: Supa
     console.log("[AUTH-DEBUG] Generations API - Locals user:", locals.user);
 
     // Try to get user from Supabase
-    const { data, error } = await supabase.auth.getUser();
+    const { data, error } = await locals.supabase.auth.getUser();
 
     console.log("[AUTH-DEBUG] Generations API - Full auth state:", {
       request: {
@@ -82,10 +82,10 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const supabase = locals.supabase as SupabaseClient;
+    const supabase = locals.supabase;
 
     // Log authentication state
-    await logAuthState(request, locals, supabase);
+    await logAuthState(request, locals);
 
     // Debug logging for cookies
     console.log("[DEBUG-AUTH] Cookie headers:", request.headers.get("cookie"));

@@ -59,9 +59,14 @@ export function TopBar({ initialUser }: TopBarProps) {
         <div className="flex items-center gap-4 relative">
           {error && <span className="text-sm text-destructive absolute -bottom-8 right-0">{error}</span>}
           {user ? (
-            <Button variant="outline" onClick={handleLogout} disabled={isLoading}>
-              {isLoading ? "Wylogowywanie..." : "Wyloguj"}
-            </Button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Zalogowany jako: <span className="font-medium text-foreground">{user.email}</span>
+              </span>
+              <Button variant="outline" onClick={handleLogout} disabled={isLoading}>
+                {isLoading ? "Wylogowywanie..." : "Wyloguj"}
+              </Button>
+            </div>
           ) : (
             <Button variant="outline" asChild>
               <a href="/login">Zaloguj się</a>

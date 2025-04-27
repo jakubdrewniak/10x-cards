@@ -1,48 +1,63 @@
+import { createSupabaseServerInstance } from "../db/supabase.client";
 import { defineMiddleware } from "astro:middleware";
 
-import { supabaseClient } from "../db/supabase.client";
+// Public paths - Auth API endpoints & Server-Rendered Astro Pages
+const PUBLIC_PATHS = [
+  // Auth pages
+  "/login",
+  "/register",
+  "/reset-password",
+  // Auth API endpoints
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/reset-password",
+  // Generations API endpoint
+  "/api/generations",
+  // Public pages
+  "/generate",
+];
 
-const PUBLIC_PATHS = ["/login", "/register", "/reset-password", "/api/auth/login", "/generate", "/api/generations"];
+// Auth pages that should redirect to /generate if user is logged in
+const AUTH_PAGES = ["/login", "/register"];
 
-export const onRequest = defineMiddleware(async ({ cookies, redirect, url, locals }, next) => {
-  // Get session from cookies
-  const accessToken = cookies.get("sb-access-token")?.value;
-  const refreshToken = cookies.get("sb-refresh-token")?.value;
+export const onRequest = defineMiddleware(async ({ locals, cookies, url, redirect }, next) => {
+  const supabase = await createSupabaseServerInstance({ cookies });
+  
+  // Add Supabase instance to locals
+  locals.supabase = supabase;
 
-  // Initialize user state and Supabase client
-  locals.user = null;
+  // Get current user session
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  // Create new Supabase client instance with session if tokens exist
-  if (accessToken && refreshToken) {
-    // Set the session in the Supabase client
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseClient.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-
-    if (!sessionError && session) {
-      locals.supabase = supabaseClient;
-      locals.user = {
-        id: session.user.id,
-        email: session.user.email,
-      };
-    } else {
-      // Clear invalid session
-      cookies.delete("sb-access-token", { path: "/" });
-      cookies.delete("sb-refresh-token", { path: "/" });
-      locals.supabase = supabaseClient;
+  // If there was an error getting the user, treat as not authenticated
+  if (userError) {
+    if (PUBLIC_PATHS.includes(url.pathname)) {
+      return next();
     }
-  } else {
-    locals.supabase = supabaseClient;
+    return redirect("/login");
   }
 
-  // For protected paths, redirect to generate if not authenticated
-  if (!locals.user && !PUBLIC_PATHS.includes(url.pathname)) {
+  // If user is logged in and tries to access auth pages, redirect to /generate
+  if (user && AUTH_PAGES.includes(url.pathname)) {
     return redirect("/generate");
   }
 
-  return next();
+  if (user) {
+    locals.user = {
+      email: user.email,
+      id: user.id,
+    };
+    return next();
+  }
+
+  // Allow access to public paths for non-authenticated users
+  if (PUBLIC_PATHS.includes(url.pathname)) {
+    return next();
+  }
+
+  // Redirect to login for protected routes
+  return redirect("/login");
 });
