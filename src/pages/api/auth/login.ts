@@ -4,6 +4,19 @@ import { supabaseClient } from "../../../db/supabase.client";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  // Add CORS headers
+  const headers = {
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Credentials": "true",
+  };
+
+  // Handle preflight request
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers });
+  }
+
   try {
     const { email, password } = await request.json();
 
@@ -20,7 +33,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
               ? "Nieprawidłowy email lub hasło"
               : "Wystąpił błąd podczas logowania",
         }),
-        { status: 400 }
+        { status: 400, headers }
       );
     }
 
@@ -48,9 +61,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           email: data.user.email,
         },
       }),
-      { status: 200 }
+      { status: 200, headers }
     );
   } catch {
-    return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Wystąpił błąd podczas przetwarzania żądania" }), {
+      status: 500,
+      headers,
+    });
   }
 };
