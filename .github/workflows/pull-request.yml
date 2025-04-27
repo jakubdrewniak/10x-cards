@@ -1,0 +1,183 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linting
+        run: npm run lint
+
+  unit-tests:
+    name: Unit Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+      
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage/
+          retention-days: 5
+
+  e2e-tests:
+    name: E2E Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    environment: 'integration'
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+      E2E_USER_ID: ${{ secrets.E2E_USER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run E2E tests
+        run: npm run e2e
+      
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 5
+
+  status-comment:
+    name: Status Comment
+    if: ${{ success() && always() && needs.lint.result == 'success' && needs.unit-tests.result == 'success' && needs.e2e-tests.result == 'success' }}
+    needs: [lint, unit-tests, e2e-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download unit test coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: coverage
+      
+      - name: Download Playwright report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+      
+      - name: Create PR Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            // Read coverage summary if it exists
+            let unitCoverage = 'No coverage data available';
+            try {
+              const coverageSummary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+              const total = coverageSummary.total;
+              
+              unitCoverage = `
+              | Category | Coverage |
+              | -------- | -------- |
+              | Lines | ${total.lines.pct}% |
+              | Statements | ${total.statements.pct}% |
+              | Functions | ${total.functions.pct}% |
+              | Branches | ${total.branches.pct}% |
+              `;
+            } catch (error) {
+              console.error('Error reading coverage data:', error);
+            }
+            
+            // Try to read e2e test results
+            let e2eResults = 'No E2E test results available';
+            try {
+              const playwrightReport = fs.existsSync('./playwright-report/results.json');
+              if (playwrightReport) {
+                const report = JSON.parse(fs.readFileSync('./playwright-report/results.json', 'utf8'));
+                const totalTests = report.suites.reduce((acc, suite) => acc + suite.specs.length, 0);
+                const passedTests = report.suites.reduce((acc, suite) => 
+                  acc + suite.specs.filter(spec => spec.ok).length, 0);
+                
+                e2eResults = `
+                | Metric | Value |
+                | ------ | ----- |
+                | Total Tests | ${totalTests} |
+                | Passed Tests | ${passedTests} |
+                | Pass Rate | ${(passedTests / totalTests * 100).toFixed(2)}% |
+                `;
+              }
+            } catch (error) {
+              console.error('Error reading E2E test results:', error);
+            }
+            
+            // Create the comment body
+            const body = `
+            ## 📊 PR Test Results
+            
+            ### Unit Test Coverage
+            ${unitCoverage}
+            
+            ### E2E Tests
+            ${e2eResults}
+            
+            ### Checks
+            - ✅ Linting: Passed
+            - ✅ Unit Tests: Passed
+            - ✅ E2E Tests: Passed
+            
+            [View detailed unit test coverage report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            [View detailed Playwright report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            }); 
