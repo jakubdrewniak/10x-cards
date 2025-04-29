@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { ListFlashcardsResponseDTO, FlashcardDTO, FlashcardFormData } from "@/types";
 import { useFlashcardsStore } from "./hooks/useFlashcardsStore";
 import { useNotify } from "@/components/providers/ToastProvider";
 import { PageHeader } from "./PageHeader";
 import { FlashcardsList } from "./FlashcardsList";
 import { FlashcardModal } from "./FlashcardModal";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import type { FlashcardDTO, FlashcardFormData, ListFlashcardsResponseDTO } from "../../types";
 
 interface FlashcardsPageProps {
   initialData: ListFlashcardsResponseDTO;

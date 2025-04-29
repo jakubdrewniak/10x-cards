@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import type { ListFlashcardsResponseDTO, FlashcardDTO, FlashcardFormData } from "@/types";
-import { supabaseClient } from "@/db/supabase.client";
+import { supabaseClient } from "../../../db/supabase.client";
 
 interface FlashcardViewModel extends FlashcardDTO {
   isSelected: boolean;
