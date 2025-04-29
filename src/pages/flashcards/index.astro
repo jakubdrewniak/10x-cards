@@ -13,10 +13,10 @@ if (!session) {
   return Astro.redirect("/login");
 }
 
-// Get initial flashcards data
-const { data: flashcardsData } = await supabase
+// Get initial flashcards data with count
+const { data: flashcardsData, count } = await supabase
   .from("flashcards")
-  .select("*")
+  .select("*", { count: "exact" })
   .order("created_at", { ascending: false })
   .range(0, 9); // First page with 10 items
 
@@ -25,7 +25,7 @@ const initialData = {
   pagination: {
     page: 1,
     limit: 10,
-    total: 0, // Will be updated by the client component
+    total: count || 0,
   },
 };
 ---

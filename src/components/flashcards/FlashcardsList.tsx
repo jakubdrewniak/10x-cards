@@ -1,4 +1,4 @@
-import type { FlashcardDTO, PaginationDTO } from "@/types";
+import type { FlashcardDTO, PaginationDTO, Source } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -11,6 +11,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+
+const sourceLabels: Record<Source, string> = {
+  "ai-full": "Wygenerowane przez AI",
+  "ai-edited": "Wygenerowane przez AI (edytowane)",
+  "manual": "Utworzone ręcznie"
+};
 
 interface FlashcardsListProps {
   flashcards: (FlashcardDTO & { isSelected: boolean })[];
@@ -67,8 +73,8 @@ export function FlashcardsList({
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {flashcards.map((flashcard) => (
-            <Card key={flashcard.id} className="relative">
-              <CardContent className="pt-6">
+            <Card key={flashcard.id} className="relative flex flex-col min-h-[180px]">
+              <CardContent className="flex-1 pt-4 pb-2">
                 <div className="absolute top-4 left-4">
                   <Checkbox checked={flashcard.isSelected} onCheckedChange={() => onSelect(flashcard.id)} />
                 </div>
@@ -91,6 +97,11 @@ export function FlashcardsList({
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className="mt-auto border-t pt-2 pb-2">
+                <p className="text-xs text-muted-foreground">
+                  {sourceLabels[flashcard.source]}
+                </p>
+              </CardFooter>
             </Card>
           ))}
         </div>
