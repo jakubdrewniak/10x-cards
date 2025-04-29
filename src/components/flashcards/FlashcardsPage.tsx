@@ -15,6 +15,7 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingFlashcard, setEditingFlashcard] = useState<FlashcardDTO | null>(null);
+  const [deletingFlashcard, setDeletingFlashcard] = useState<FlashcardDTO | null>(null);
   const notify = useNotify();
 
   const {
@@ -41,6 +42,12 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
   };
 
   const handleDeleteClick = () => {
+    setDeletingFlashcard(null);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleSingleDeleteClick = (flashcard: FlashcardDTO) => {
+    setDeletingFlashcard(flashcard);
     setIsDeleteDialogOpen(true);
   };
 
@@ -70,12 +77,14 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteFlashcards(selectedIds);
+      const ids = deletingFlashcard ? [deletingFlashcard.id] : selectedIds;
+      await deleteFlashcards(ids);
       setIsDeleteDialogOpen(false);
+      setDeletingFlashcard(null);
       deselectAll();
       notify.success({
         title: "Flashcards Deleted",
-        description: `Successfully deleted ${selectedIds.length} flashcard${selectedIds.length !== 1 ? "s" : ""}.`,
+        description: `Successfully deleted ${ids.length} flashcard${ids.length !== 1 ? "s" : ""}.`,
       });
     } catch {
       notify.error({
@@ -97,6 +106,7 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
         selectedIds={selectedIds}
         onPageChange={loadFlashcards}
         onEdit={handleEditClick}
+        onDelete={handleSingleDeleteClick}
         onSelect={toggleSelection}
         onSelectAll={selectAll}
         onDeselectAll={deselectAll}
@@ -112,9 +122,12 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
 
       <DeleteConfirmationDialog
         isOpen={isDeleteDialogOpen}
-        itemCount={selectedIds.length}
+        itemCount={deletingFlashcard ? 1 : selectedIds.length}
         onConfirm={handleConfirmDelete}
-        onCancel={() => setIsDeleteDialogOpen(false)}
+        onCancel={() => {
+          setIsDeleteDialogOpen(false);
+          setDeletingFlashcard(null);
+        }}
       />
     </div>
   );

@@ -2,7 +2,7 @@ import type { FlashcardDTO, PaginationDTO } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Pencil2Icon } from "@radix-ui/react-icons";
+import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import {
   Pagination,
   PaginationContent,
@@ -18,6 +18,7 @@ interface FlashcardsListProps {
   selectedIds: number[];
   onPageChange: (page: number) => void;
   onEdit: (flashcard: FlashcardDTO) => void;
+  onDelete: (flashcard: FlashcardDTO) => void;
   onSelect: (id: number) => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
@@ -30,6 +31,7 @@ export function FlashcardsList({
   selectedIds,
   onPageChange,
   onEdit,
+  onDelete,
   onSelect,
   onSelectAll,
   onDeselectAll,
@@ -70,9 +72,12 @@ export function FlashcardsList({
                 <div className="absolute top-4 left-4">
                   <Checkbox checked={flashcard.isSelected} onCheckedChange={() => onSelect(flashcard.id)} />
                 </div>
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 flex gap-2">
                   <Button variant="ghost" size="icon" onClick={() => onEdit(flashcard)}>
                     <Pencil2Icon className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => onDelete(flashcard)}>
+                    <TrashIcon className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
                 <div className="space-y-4 mt-4">
