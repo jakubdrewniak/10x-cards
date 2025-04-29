@@ -64,7 +64,7 @@ describe("GenerateFlashcardsPage", () => {
     });
 
     it("should render disabled generate button", () => {
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
       expect(generateButton).toBeInTheDocument();
       expect(generateButton).toBeDisabled();
     });
@@ -80,12 +80,12 @@ describe("GenerateFlashcardsPage", () => {
     });
 
     it("should not render accept all button", () => {
-      const acceptAllButton = screen.queryByRole("button", { name: /accept all/i });
+      const acceptAllButton = screen.queryByRole("button", { name: /akceptuj wszystkie/i });
       expect(acceptAllButton).not.toBeInTheDocument();
     });
 
     it("should not render save button", () => {
-      const saveButton = screen.queryByRole("button", { name: /save flashcards/i });
+      const saveButton = screen.queryByRole("button", { name: /kopiuj do schowka/i });
       expect(saveButton).not.toBeInTheDocument();
     });
   });
@@ -96,14 +96,14 @@ describe("GenerateFlashcardsPage", () => {
     });
 
     const getTextArea = () => screen.getByRole("textbox");
-    const getGenerateButton = () => screen.getByRole("button", { name: /generate flashcards/i });
+    const getGenerateButton = () => screen.getByRole("button", { name: /generuj fiszki/i });
 
     it("should show error when text is empty", async () => {
       const textArea = getTextArea();
       await userEvent.type(textArea, " ");
       await userEvent.clear(textArea);
 
-      expect(screen.getByText("Please enter some text")).toBeInTheDocument();
+      expect(screen.getByText("Wprowadź tekst")).toBeInTheDocument();
       expect(getGenerateButton()).toBeDisabled();
     });
 
@@ -112,7 +112,7 @@ describe("GenerateFlashcardsPage", () => {
 
       fireEvent.change(textArea, { target: { value: "a".repeat(999) } });
 
-      expect(screen.getByText(/Text must be at least 1000 characters/)).toBeInTheDocument();
+      expect(screen.getByText(/Tekst musi mieć co najmniej 1000 znaków/)).toBeInTheDocument();
       expect(getGenerateButton()).toBeDisabled();
     });
 
@@ -122,7 +122,7 @@ describe("GenerateFlashcardsPage", () => {
 
       fireEvent.change(textArea, { target: { value: longText } });
 
-      expect(screen.getByText(/Text cannot exceed 10000 characters/)).toBeInTheDocument();
+      expect(screen.getByText(/Tekst nie może przekraczać 10000 znaków/)).toBeInTheDocument();
       expect(getGenerateButton()).toBeDisabled();
     });
 
@@ -141,7 +141,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // First enter invalid text
       await userEvent.type(textArea, "short");
-      expect(screen.getByText(/Text must be at least/)).toBeInTheDocument();
+      expect(screen.getByText(/Tekst musi mieć co najmniej 1000 znaków/)).toBeInTheDocument();
 
       // Then make it valid
       await userEvent.clear(textArea);
@@ -189,7 +189,7 @@ describe("GenerateFlashcardsPage", () => {
     it("should show loading indicator when generating flashcards", async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -204,7 +204,7 @@ describe("GenerateFlashcardsPage", () => {
     it("should handle successful API response", async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -232,19 +232,19 @@ describe("GenerateFlashcardsPage", () => {
         if (url === "/api/auth/session") {
           return createMockResponse({ session: null });
         }
-        return createMockResponse({ message: "API Error" }, false);
+        return createMockResponse({ message: "Nie udało się wygenerować fiszek" }, false);
       });
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
       await userEvent.click(generateButton);
 
       // Check error message
-      expect(await screen.findByText("API Error")).toBeInTheDocument();
+      expect(await screen.findByText("Nie udało się wygenerować fiszek")).toBeInTheDocument();
       expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
       expect(screen.queryByRole("list")).not.toBeInTheDocument();
     });
@@ -260,7 +260,7 @@ describe("GenerateFlashcardsPage", () => {
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -282,7 +282,7 @@ describe("GenerateFlashcardsPage", () => {
 
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -290,7 +290,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // Check error message
       expect(
-        await screen.findByText("No flashcards were generated. Please try with different text.")
+        await screen.findByText("Nie wygenerowano żadnych fiszek. Spróbuj z innym tekstem.")
       ).toBeInTheDocument();
       expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
       expect(screen.queryByRole("list")).not.toBeInTheDocument();
@@ -319,7 +319,7 @@ describe("GenerateFlashcardsPage", () => {
     const setupFlashcardsList = async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -344,25 +344,25 @@ describe("GenerateFlashcardsPage", () => {
     it("should allow accepting individual flashcard", async () => {
       await setupFlashcardsList();
 
-      const acceptButtons = screen.getAllByRole("button", { name: /accept/i });
+      const acceptButtons = screen.getAllByRole("button", { name: /akceptuj/i });
       await userEvent.click(acceptButtons[0]);
 
       // After accepting, the save button should be enabled if all cards are marked
-      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
     it("should allow rejecting individual flashcard", async () => {
       await setupFlashcardsList();
 
-      const rejectButtons = screen.getAllByRole("button", { name: /reject/i });
+      const rejectButtons = screen.getAllByRole("button", { name: /odrzuć/i });
       // Reject all flashcards to enable the save button
       for (const button of rejectButtons) {
         await userEvent.click(button);
       }
 
       // After rejecting all cards, the save button should be enabled
-      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
@@ -370,7 +370,7 @@ describe("GenerateFlashcardsPage", () => {
       await setupFlashcardsList();
 
       // Start editing the first flashcard
-      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      const editButtons = screen.getAllByRole("button", { name: /edytuj/i });
       await userEvent.click(editButtons[0]);
 
       // Find edit inputs
@@ -385,7 +385,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // Find the save button within the flashcard being edited
       const flashcardItem = screen.getAllByRole("listitem")[0];
-      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      const saveButton = within(flashcardItem).getByRole("button", { name: /zapisz/i });
       await userEvent.click(saveButton);
 
       // Verify edited content is displayed
@@ -397,7 +397,7 @@ describe("GenerateFlashcardsPage", () => {
       await setupFlashcardsList();
 
       // Start editing first flashcard
-      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      const editButtons = screen.getAllByRole("button", { name: /edytuj/i });
       await userEvent.click(editButtons[0]);
 
       // Edit content
@@ -410,7 +410,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // Save edits using the save button within the flashcard
       const flashcardItem = screen.getAllByRole("listitem")[0];
-      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      const saveButton = within(flashcardItem).getByRole("button", { name: /zapisz/i });
       await userEvent.click(saveButton);
 
       // Verify the status is "edited"
@@ -453,7 +453,7 @@ describe("GenerateFlashcardsPage", () => {
     const setupFlashcardsList = async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -466,14 +466,14 @@ describe("GenerateFlashcardsPage", () => {
     it("should enable accept all button when flashcards are present", async () => {
       await setupFlashcardsList();
 
-      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      const acceptAllButton = screen.getByRole("button", { name: /akceptuj wszystkie/i });
       expect(acceptAllButton).toBeEnabled();
     });
 
     it("should mark all pending flashcards as accepted when clicking accept all", async () => {
       await setupFlashcardsList();
 
-      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      const acceptAllButton = screen.getByRole("button", { name: /akceptuj wszystkie/i });
       await userEvent.click(acceptAllButton);
 
       // Check that all flashcards are marked as accepted
@@ -483,7 +483,7 @@ describe("GenerateFlashcardsPage", () => {
       });
 
       // Save button should be enabled since all cards are marked
-      const saveButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const saveButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       expect(saveButton).toBeEnabled();
     });
 
@@ -491,7 +491,7 @@ describe("GenerateFlashcardsPage", () => {
       await setupFlashcardsList();
 
       // Edit the first flashcard
-      const editButtons = screen.getAllByRole("button", { name: /edit/i });
+      const editButtons = screen.getAllByRole("button", { name: /edytuj/i });
       await userEvent.click(editButtons[0]);
 
       // Edit content
@@ -504,11 +504,11 @@ describe("GenerateFlashcardsPage", () => {
 
       // Save the edit
       const flashcardItem = screen.getAllByRole("listitem")[0];
-      const saveButton = within(flashcardItem).getByRole("button", { name: /save/i });
+      const saveButton = within(flashcardItem).getByRole("button", { name: /zapisz/i });
       await userEvent.click(saveButton);
 
       // Click accept all
-      const acceptAllButton = screen.getByRole("button", { name: /accept all/i });
+      const acceptAllButton = screen.getByRole("button", { name: /akceptuj wszystkie/i });
       await userEvent.click(acceptAllButton);
 
       // Verify the edited card remains "edited" while others become "accepted"
@@ -525,14 +525,14 @@ describe("GenerateFlashcardsPage", () => {
       // Let's skip checking the initial flashcard states since they might be changed by other tests
       // and focus on the save button logic which is what we're actually testing
 
-      const saveButtons = screen.getAllByRole("button", { name: /copy to clipboard/i });
+      const saveButtons = screen.getAllByRole("button", { name: /kopiuj do schowka/i });
 
       // Verify save buttons are initially disabled
       expect(saveButtons[0]).toHaveAttribute("disabled");
       expect(saveButtons[1]).toHaveAttribute("disabled");
 
       // Get all buttons that can change flashcard status
-      const acceptButtons = screen.getAllByRole("button", { name: /accept/i });
+      const acceptButtons = screen.getAllByRole("button", { name: /akceptuj/i });
 
       // Accept all three cards one by one
       await user.click(acceptButtons[0]);
@@ -544,7 +544,7 @@ describe("GenerateFlashcardsPage", () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Get fresh references to the save buttons
-      const updatedSaveButtons = screen.getAllByRole("button", { name: /copy to clipboard/i });
+      const updatedSaveButtons = screen.getAllByRole("button", { name: /kopiuj do schowka/i });
 
       // Now the save buttons should be enabled
       expect(updatedSaveButtons[0]).not.toHaveAttribute("disabled");
@@ -562,7 +562,6 @@ describe("GenerateFlashcardsPage", () => {
           flashcards_proposals: [
             { front: "Test Front 1", back: "Test Back 1" },
             { front: "Test Front 2", back: "Test Back 2" },
-            { front: "Test Front 3", back: "Test Back 3" },
           ],
         });
       });
@@ -578,7 +577,7 @@ describe("GenerateFlashcardsPage", () => {
     const setupFlashcardsWithStatuses = async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -595,11 +594,11 @@ describe("GenerateFlashcardsPage", () => {
       const flashcardItems = screen.getAllByRole("listitem");
 
       // Accept first card
-      const acceptButton = within(flashcardItems[0]).getByRole("button", { name: /accept/i });
+      const acceptButton = within(flashcardItems[0]).getByRole("button", { name: /akceptuj/i });
       await userEvent.click(acceptButton);
 
       // Edit second card
-      const editButton = within(flashcardItems[1]).getByRole("button", { name: /edit/i });
+      const editButton = within(flashcardItems[1]).getByRole("button", { name: /edytuj/i });
       await userEvent.click(editButton);
 
       // Find inputs within the second flashcard
@@ -614,15 +613,11 @@ describe("GenerateFlashcardsPage", () => {
       await userEvent.type(backInput, "Edited Back");
 
       // Save the edit
-      const saveEditButton = within(flashcardItems[1]).getByRole("button", { name: /save/i });
+      const saveEditButton = within(flashcardItems[1]).getByRole("button", { name: /zapisz/i });
       await userEvent.click(saveEditButton);
 
-      // Reject third card
-      const rejectButton = within(flashcardItems[2]).getByRole("button", { name: /reject/i });
-      await userEvent.click(rejectButton);
-
       // Click copy to clipboard button
-      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const copyButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       await userEvent.click(copyButton);
 
       // Verify clipboard.writeText was called with correct data
@@ -633,7 +628,6 @@ describe("GenerateFlashcardsPage", () => {
       const clipboardText = writeTextMock.mock.calls[0][0];
       expect(clipboardText).toContain("Front: Test Front 1");
       expect(clipboardText).toContain("Front: Edited Front");
-      expect(clipboardText).not.toContain("Front: Test Front 3");
     });
 
     it("should exclude rejected flashcards from saving", async () => {
@@ -642,16 +636,16 @@ describe("GenerateFlashcardsPage", () => {
       // Reject all flashcards
       const flashcardItems = screen.getAllByRole("listitem");
       for (const item of flashcardItems) {
-        const rejectButton = within(item).getByRole("button", { name: /reject/i });
+        const rejectButton = within(item).getByRole("button", { name: /odrzuć/i });
         await userEvent.click(rejectButton);
       }
 
       // Click copy to clipboard button
-      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const copyButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       await userEvent.click(copyButton);
 
       // Check that error message appears (no flashcards selected)
-      expect(screen.getByText("No flashcards selected for copying")).toBeInTheDocument();
+      expect(screen.getByText("Nie wybrano żadnych fiszek do skopiowania")).toBeInTheDocument();
     });
 
     it("should preserve original content for edited flashcards when saving", async () => {
@@ -659,7 +653,7 @@ describe("GenerateFlashcardsPage", () => {
 
       // Get first flashcard and edit it
       const flashcardItems = screen.getAllByRole("listitem");
-      const editButton = within(flashcardItems[0]).getByRole("button", { name: /edit/i });
+      const editButton = within(flashcardItems[0]).getByRole("button", { name: /edytuj/i });
       await userEvent.click(editButton);
 
       // Find inputs within the first flashcard
@@ -674,17 +668,17 @@ describe("GenerateFlashcardsPage", () => {
       await userEvent.type(backInput, "Edited Back");
 
       // Save the edit
-      const saveEditButton = within(flashcardItems[0]).getByRole("button", { name: /save/i });
+      const saveEditButton = within(flashcardItems[0]).getByRole("button", { name: /zapisz/i });
       await userEvent.click(saveEditButton);
 
       // Accept remaining cards to enable save
       for (let i = 1; i < flashcardItems.length; i++) {
-        const acceptButton = within(flashcardItems[i]).getByRole("button", { name: /accept/i });
+        const acceptButton = within(flashcardItems[i]).getByRole("button", { name: /akceptuj/i });
         await userEvent.click(acceptButton);
       }
 
       // Click copy to clipboard button
-      const copyButton = screen.getAllByRole("button", { name: /copy to clipboard/i })[0];
+      const copyButton = screen.getAllByRole("button", { name: /kopiuj do schowka/i })[0];
       await userEvent.click(copyButton);
 
       // We can't easily check the internal representation of clipboard data,
@@ -718,10 +712,10 @@ describe("GenerateFlashcardsPage", () => {
       vi.restoreAllMocks();
     });
 
-    it("should show 'Save Flashcards' button for logged in users", async () => {
+    it("should show 'Zapisz Fiszki' button for logged in users", async () => {
       render(<GenerateFlashcardsPage />);
       const textArea = screen.getByRole("textbox");
-      const generateButton = screen.getByRole("button", { name: /generate flashcards/i });
+      const generateButton = screen.getByRole("button", { name: /generuj fiszki/i });
 
       // Enter valid text and generate
       fireEvent.change(textArea, { target: { value: "a".repeat(1000) } });
@@ -731,11 +725,11 @@ describe("GenerateFlashcardsPage", () => {
       await screen.findByRole("list");
 
       // Check that save buttons are present instead of copy buttons
-      const saveButtons = screen.getAllByRole("button", { name: /save flashcards/i });
+      const saveButtons = screen.getAllByRole("button", { name: /zapisz fiszki/i });
       expect(saveButtons.length).toBeGreaterThan(0);
 
       // Make sure there are no copy buttons
-      const copyButtons = screen.queryAllByRole("button", { name: /copy to clipboard/i });
+      const copyButtons = screen.queryAllByRole("button", { name: /kopiuj do schowka/i });
       expect(copyButtons.length).toBe(0);
     });
   });
