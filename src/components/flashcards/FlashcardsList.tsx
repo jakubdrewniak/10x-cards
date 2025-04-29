@@ -86,9 +86,6 @@ export function FlashcardsList({
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="text-xs text-muted-foreground">
-                Created: {new Date(flashcard.created_at).toLocaleDateString()}
-              </CardFooter>
             </Card>
           ))}
         </div>
