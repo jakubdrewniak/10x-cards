@@ -21,19 +21,19 @@ export function DeleteConfirmationDialog({ isOpen, itemCount, onConfirm, onCance
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Czy jesteś absolutnie pewien?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{" "}
-            {itemCount === 1 ? "this flashcard" : `these ${itemCount} flashcards`} from your account.
+            Tej operacji nie można cofnąć. Spowoduje to trwałe usunięcie{" "}
+            {itemCount === 1 ? "tej fiszki" : `tych ${itemCount} ${itemCount < 5 ? "fiszek" : "fiszek"}`} z Twojego konta.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel}>Anuluj</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete {itemCount === 1 ? "Flashcard" : "Flashcards"}
+            Usuń {itemCount === 1 ? "Fiszkę" : "Fiszki"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

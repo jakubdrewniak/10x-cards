@@ -70,13 +70,13 @@ export function GenerateFlashcardsPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || "Failed to generate flashcards");
+        throw new Error(errorData?.message || "Nie udało się wygenerować fiszek");
       }
 
       const data: GenerateFlashcardsResponseDTO = await response.json();
 
       if (!data.flashcards_proposals?.length) {
-        throw new Error("No flashcards were generated. Please try with different text.");
+        throw new Error("Nie wygenerowano żadnych fiszek. Spróbuj z innym tekstem.");
       }
 
       setViewModel((prev) => ({
@@ -117,7 +117,7 @@ export function GenerateFlashcardsPage() {
     if (acceptedOrEdited.length === 0) {
       setViewModel((prev) => ({
         ...prev,
-        errorMessage: "No flashcards selected for copying",
+        errorMessage: "Nie wybrano żadnych fiszek do skopiowania",
       }));
       return;
     }
@@ -128,11 +128,11 @@ export function GenerateFlashcardsPage() {
         .join("\n\n");
 
       await navigator.clipboard.writeText(flashcardsText);
-      toast.success(`Successfully copied ${acceptedOrEdited.length} flashcards to clipboard!`);
+      toast.success(`Pomyślnie skopiowano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"} do schowka!`);
 
       // Remove the form clearing code - we want to keep the current view
     } catch (error) {
-      toast.error("Failed to copy flashcards to clipboard");
+      toast.error("Nie udało się skopiować fiszek do schowka");
       console.error("Clipboard error:", error);
     }
   };
@@ -145,7 +145,7 @@ export function GenerateFlashcardsPage() {
     if (acceptedOrEdited.length === 0) {
       setViewModel((prev) => ({
         ...prev,
-        errorMessage: "No flashcards selected for saving",
+        errorMessage: "Nie wybrano żadnych fiszek do zapisania",
       }));
       return;
     }
@@ -172,7 +172,7 @@ export function GenerateFlashcardsPage() {
       }
 
       // Show success toast
-      toast.success(`Successfully saved ${acceptedOrEdited.length} flashcards!`);
+      toast.success(`Pomyślnie zapisano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"}!`);
 
       // Clear the form after successful save
       setViewModel((prev) => ({
@@ -234,13 +234,13 @@ export function GenerateFlashcardsPage() {
 
   const validateInputText = (text: string): string | null => {
     if (!text.trim()) {
-      return "Please enter some text";
+      return "Wprowadź tekst";
     }
     if (text.length < 1000) {
-      return `Text must be at least 1000 characters long (currently ${text.length})`;
+      return `Tekst musi mieć co najmniej 1000 znaków (obecnie ${text.length})`;
     }
     if (text.length > 10000) {
-      return `Text cannot exceed 10000 characters (currently ${text.length})`;
+      return `Tekst nie może przekraczać 10000 znaków (obecnie ${text.length})`;
     }
     return null;
   };
@@ -256,7 +256,7 @@ export function GenerateFlashcardsPage() {
             disabled={viewModel.isLoading || viewModel.inputText.length < 1000 || viewModel.inputText.length > 10000}
             data-testid="generate-flashcards-button"
           >
-            {viewModel.isLoading ? "Generating..." : "Generate Flashcards"}
+            {viewModel.isLoading ? "Generowanie..." : "Generuj Fiszki"}
           </Button>
         </div>
 
@@ -276,7 +276,7 @@ export function GenerateFlashcardsPage() {
                 variant="default"
                 data-testid="save-flashcards-button"
               >
-                {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}
+                {isLoggedIn ? "Zapisz Fiszki" : "Kopiuj do Schowka"}
               </Button>
             </div>
 
@@ -294,7 +294,7 @@ export function GenerateFlashcardsPage() {
                 variant="default"
                 size="lg"
               >
-                {isLoggedIn ? "Save Flashcards" : "Copy to Clipboard"}
+                {isLoggedIn ? "Zapisz Fiszki" : "Kopiuj do Schowka"}
               </Button>
             </div>
           </>

@@ -10,7 +10,7 @@ interface PageHeaderProps {
 export function PageHeader({ selectedCount, onAddClick, onBulkDelete }: PageHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Flashcards</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Fiszki</h1>
 
       <div className="flex items-center gap-4">
         {selectedCount > 0 ? (
@@ -26,7 +26,7 @@ export function PageHeader({ selectedCount, onAddClick, onBulkDelete }: PageHead
         ) : (
           <Button onClick={onAddClick} size="sm">
             <PlusIcon className="h-4 w-4 mr-2" />
-            Add Flashcard
+            Dodaj Fiszkę
           </Button>
         )}
       </div>

@@ -56,21 +56,21 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
       if (editingFlashcard) {
         await updateFlashcard(editingFlashcard.id, { ...data, source: "manual" });
         notify.success({
-          title: "Flashcard Updated",
-          description: "Your flashcard has been updated successfully.",
+          title: "Fiszka Zaktualizowana",
+          description: "Twoja fiszka została pomyślnie zaktualizowana.",
         });
       } else {
         await createFlashcard({ ...data, source: "manual" });
         notify.success({
-          title: "Flashcard Created",
-          description: "Your new flashcard has been created successfully.",
+          title: "Fiszka Utworzona",
+          description: "Twoja nowa fiszka została pomyślnie utworzona.",
         });
       }
       setIsModalOpen(false);
     } catch {
       notify.error({
-        title: "Operation Failed",
-        description: "Failed to save flashcard. Please try again.",
+        title: "Operacja Nieudana",
+        description: "Nie udało się zapisać fiszki. Spróbuj ponownie.",
       });
     }
   };
@@ -83,13 +83,13 @@ export function FlashcardsPage({ initialData }: FlashcardsPageProps) {
       setDeletingFlashcard(null);
       deselectAll();
       notify.success({
-        title: "Flashcards Deleted",
-        description: `Successfully deleted ${ids.length} flashcard${ids.length !== 1 ? "s" : ""}.`,
+        title: "Fiszki Usunięte",
+        description: `Pomyślnie usunięto ${ids.length} ${ids.length === 1 ? "fiszkę" : ids.length < 5 ? "fiszki" : "fiszek"}.`,
       });
     } catch {
       notify.error({
-        title: "Operation Failed",
-        description: "Failed to delete flashcards. Please try again.",
+        title: "Operacja Nieudana",
+        description: "Nie udało się usunąć fiszek. Spróbuj ponownie.",
       });
     }
   };

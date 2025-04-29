@@ -60,7 +60,7 @@ export function FlashcardsList({
           }}
         />
         <span className="text-sm text-muted-foreground">
-          {selectedIds.length} of {flashcards.length} selected
+          {selectedIds.length} z {flashcards.length} wybranych
         </span>
       </div>
 
@@ -69,7 +69,7 @@ export function FlashcardsList({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : flashcards.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">No flashcards found</div>
+        <div className="text-center py-8 text-muted-foreground">Nie znaleziono fiszek</div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {flashcards.map((flashcard) => (
@@ -88,11 +88,11 @@ export function FlashcardsList({
                 </div>
                 <div className="space-y-4 mt-4">
                   <div>
-                    <h4 className="font-medium mb-2">Front</h4>
+                    <h4 className="font-medium mb-2">Przód</h4>
                     <p className="text-sm text-muted-foreground">{flashcard.front}</p>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2">Back</h4>
+                    <h4 className="font-medium mb-2">Tył</h4>
                     <p className="text-sm text-muted-foreground">{flashcard.back}</p>
                   </div>
                 </div>

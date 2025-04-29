@@ -50,15 +50,15 @@ export function FlashcardModal({ isOpen, flashcard, onSave, onClose }: Flashcard
     const newErrors: Record<string, string> = {};
 
     if (!formData.front.trim()) {
-      newErrors.front = "Front side is required";
+      newErrors.front = "Przód jest wymagany";
     } else if (formData.front.length > MAX_FRONT_LENGTH) {
-      newErrors.front = `Front side must be less than ${MAX_FRONT_LENGTH} characters`;
+      newErrors.front = `Przód musi mieć mniej niż ${MAX_FRONT_LENGTH} znaków`;
     }
 
     if (!formData.back.trim()) {
-      newErrors.back = "Back side is required";
+      newErrors.back = "Tył jest wymagany";
     } else if (formData.back.length > MAX_BACK_LENGTH) {
-      newErrors.back = `Back side must be less than ${MAX_BACK_LENGTH} characters`;
+      newErrors.back = `Tył musi mieć mniej niż ${MAX_BACK_LENGTH} znaków`;
     }
 
     setErrors(newErrors);
@@ -77,14 +77,14 @@ export function FlashcardModal({ isOpen, flashcard, onSave, onClose }: Flashcard
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{flashcard ? "Edit Flashcard" : "Create Flashcard"}</DialogTitle>
-            <DialogDescription>Fill in both sides of the flashcard.</DialogDescription>
+            <DialogTitle>{flashcard ? "Edytuj Fiszkę" : "Utwórz Fiszkę"}</DialogTitle>
+            <DialogDescription>Wypełnij obie strony fiszki.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="front">
-                Front Side
+                Przód
                 <span className="text-xs text-muted-foreground ml-2">
                   ({formData.front.length}/{MAX_FRONT_LENGTH})
                 </span>
@@ -100,7 +100,7 @@ export function FlashcardModal({ isOpen, flashcard, onSave, onClose }: Flashcard
 
             <div className="grid gap-2">
               <Label htmlFor="back">
-                Back Side
+                Tył
                 <span className="text-xs text-muted-foreground ml-2">
                   ({formData.back.length}/{MAX_BACK_LENGTH})
                 </span>
@@ -118,9 +118,9 @@ export function FlashcardModal({ isOpen, flashcard, onSave, onClose }: Flashcard
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Anuluj
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit">Zapisz</Button>
           </DialogFooter>
         </form>
       </DialogContent>
