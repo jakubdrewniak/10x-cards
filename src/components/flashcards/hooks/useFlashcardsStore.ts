@@ -14,6 +14,17 @@ interface FlashcardsState {
   error: Error | null;
 }
 
+interface SupabaseFlashcard {
+  id: number;
+  front: string;
+  back: string;
+  source: string;
+  generation_id: number | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+}
+
 // interface FlashcardsActions {
 //   loadFlashcards: (page: number) => Promise<void>;
 //   createFlashcard: (data: FlashcardFormData) => Promise<void>;
@@ -37,25 +48,26 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
     async (page: number) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const start = (page - 1) * state.pagination.limit;
-        const end = start + state.pagination.limit - 1;
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: state.pagination.limit.toString(),
+          sortBy: "created_at",
+          order: "desc",
+        });
 
-        const { data, error, count } = await supabaseClient
-          .from("flashcards")
-          .select("*", { count: "exact" })
-          .order("created_at", { ascending: false })
-          .range(start, end);
+        const response = await fetch(`/api/flashcards?${params}`);
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to load flashcards");
+        }
+
+        const data: ListFlashcardsResponseDTO = await response.json();
 
         setState((prev) => ({
           ...prev,
-          flashcards: (data || []).map((f: FlashcardDTO) => ({ ...f, isSelected: false })),
-          pagination: {
-            ...prev.pagination,
-            page,
-            total: count || 0,
-          },
+          flashcards: data.data.map((f) => ({ ...f, isSelected: false })),
+          pagination: data.pagination,
           isLoading: false,
         }));
       } catch (error) {
@@ -73,9 +85,18 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
     async (data: FlashcardFormData) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const { error } = await supabaseClient.from("flashcards").insert([{ ...data, source: "manual" }]);
+        const response = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            flashcards: [{ ...data, source: "manual" }],
+          }),
+        });
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create flashcard");
+        }
 
         await loadFlashcards(1); // Reload first page after creation
       } catch (error) {
@@ -84,6 +105,7 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
           error: error as Error,
           isLoading: false,
         }));
+        throw error; // Re-throw to handle in the UI
       }
     },
     [loadFlashcards]
@@ -93,12 +115,16 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
     async (id: number, data: FlashcardFormData) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const { error } = await supabaseClient
-          .from("flashcards")
-          .update({ ...data, source: "manual" })
-          .eq("id", id);
+        const response = await fetch(`/api/flashcards/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...data, source: "manual" }),
+        });
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update flashcard");
+        }
 
         await loadFlashcards(state.pagination.page);
       } catch (error) {
@@ -107,6 +133,7 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
           error: error as Error,
           isLoading: false,
         }));
+        throw error; // Re-throw to handle in the UI
       }
     },
     [loadFlashcards, state.pagination.page]
@@ -116,9 +143,16 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
     async (ids: number[]) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const { error } = await supabaseClient.from("flashcards").delete().in("id", ids);
+        const response = await fetch("/api/flashcards", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }),
+        });
 
-        if (error) throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to delete flashcards");
+        }
 
         await loadFlashcards(1); // Reload first page after deletion
       } catch (error) {
@@ -127,6 +161,7 @@ export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
           error: error as Error,
           isLoading: false,
         }));
+        throw error; // Re-throw to handle in the UI
       }
     },
     [loadFlashcards]
