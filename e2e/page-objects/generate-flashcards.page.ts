@@ -409,7 +409,7 @@ export class GenerateFlashcardsPage {
    */
   async checkSuccessToast() {
     // Wait for toast with success message
-    await this.page.getByText(/Successfully (saved|copied)/).waitFor({ state: "visible" });
+    await this.page.getByText(/Pomyślnie (zapisano|skopiowano)/).waitFor({ state: "visible" });
   }
 
   /**
