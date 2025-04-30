@@ -3,11 +3,11 @@ Jesteś asystentem AI, którego zadaniem jest pomoc w zaplanowaniu schematu bazy
 Prosimy o uważne zapoznanie się z poniższymi informacjami:
 
 <product_requirements>
-@prd.md 
+@prd.md
 </product_requirements>
 
 <tech_stack>
-@tech-stack.md 
+@tech-stack.md
 </tech_stack>
 
 Przeanalizuj dostarczone informacje, koncentrując się na aspektach istotnych dla projektowania bazy danych. Rozważ następujące kwestie:
@@ -48,7 +48,6 @@ Kontynuuj ten proces, generując nowe pytania i rekomendacje w oparciu o przekaz
 
 Pamiętaj, aby skupić się na jasności, trafności i dokładności wyników. Nie dołączaj żadnych dodatkowych komentarzy ani wyjaśnień poza określonym formatem wyjściowym.
 
-
 <database_planning_output>
 <pytania>
 Jakie relacje mają zostać ustanowione między tabelą użytkowników a tabelą fiszek? Czy każdy użytkownik może posiadać wiele fiszek i czy należy uwzględnić możliwość współdzielenia fiszek między użytkownikami?
@@ -75,13 +74,14 @@ Uwzględnić potencjalne potrzeby partycjonowania tabeli flashcards (np. według
 Upewnić się, że polityki bezpieczeństwa i ograniczenia dostępu są zgodne z wymaganiami Supabase oraz najlepszymi praktykami PostgreSQL, aby zapewnić pełne bezpieczeństwo danych.
 </rekomendacje>
 </database_planning_output>
+
 1. Użytkownik może posiadać wiele fiszek. Użytkownicy nie mogą się dzielić fiszkami.
 2. fiszka będzie reprezentowana przez encję flashcards: id (bigserial), front, back, source (wygenerowane przez ai "ai-full", wygenerowane i zedytowane- "ai-edited" i dodana manualnie- "manual),created_at, updated_at, generation_id (fk), user_id (fk)
 3. Nie, jedynie data aktualizacji fiszki
 4. Tak, dla przodu 200 znaków, dla tyłu 500 znaków
 5. encją users będzie zajmować się Supabase (id, email, created_at, encrypted_password, confirmed_at)
-6. W jednej tabeli, rozróżnienie za pomocą pola source  (wygenerowane przez ai "ai-full", wygenerowane i zedytowane- "ai-edited" i dodana manualnie- "manual)
-7.  Zaproponuj najbardziej oczywiste indeksy
+6. W jednej tabeli, rozróżnienie za pomocą pola source (wygenerowane przez ai "ai-full", wygenerowane i zedytowane- "ai-edited" i dodana manualnie- "manual)
+7. Zaproponuj najbardziej oczywiste indeksy
 8. Nie, nie przewidujemu partycjonowania
 9. User powinien mieć dostęp tylko do swoich fiszek powiązanych z jego ID, autoryzacja w oparciu o Supabase Auth.
 10. Zaproponuj standardowe rozwiązanie.
@@ -112,12 +112,13 @@ Korzystać ze standardowego modelu danych użytkowników zarządzanego przez Sup
 Nie wdrażać partycjonowania, ponieważ nie przewidujemy dużej ilości rekordów w kontekście MVP.
 </rekomendacje>
 </database_planning_output>
+
 1. Nie jest zdefinionwana. Encja generations: id (bigserial), user_id (fk), model, generated_count, accepted_unedited_count, accepted_edited_count, source_text_hash, source_text_length, generation_time.
-poza Tym będzie encja generation_error_logs: id (bigserial), user_id (fk), model, source_text_hash, source_text_length, error_code, error_message
+   poza Tym będzie encja generation_error_logs: id (bigserial), user_id (fk), model, source_text_hash, source_text_length, error_code, error_message
 2. jako ENUM
 3. Wymagane
 4. Tak
-5. Wystarczy że  flashcards.user_id odpowiada identyfikatorowi aktualnie zalogowanego użytkownika wg mechanizmu Supabase Auth
+5. Wystarczy że flashcards.user_id odpowiada identyfikatorowi aktualnie zalogowanego użytkownika wg mechanizmu Supabase Auth
 
 <database_planning_output>
 <pytania>
@@ -157,20 +158,25 @@ Zdefiniować wszystkie klucze obce (FK) z odpowiednimi ograniczeniami integralno
 Skorzystać z rozszerzenia PostgreSQL do obsługi typu ENUM, aby zapewnić właściwą implementację kolumny source w tabeli flashcards.
 </rekomendacje>
 </database_planning_output>
+
 1. Tak
 2. TEXT
 3. tak
 4. Nie
 5. Nie
 6. Obowiązkowe. Nie potrzeba więcej ograniczeń.
+
 ---
+
 Jesteś asystentem AI, którego zadaniem jest podsumowanie rozmowy na temat planowania bazy danych dla MVP i przygotowanie zwięzłego podsumowania dla następnego etapu rozwoju. W historii konwersacji znajdziesz następujące informacje:
+
 1. Dokument wymagań produktu (PRD)
 2. Informacje o stacku technologicznym
 3. Historia rozmów zawierająca pytania i odpowiedzi
 4. Zalecenia dotyczące modelu
 
 Twoim zadaniem jest:
+
 1. Podsumować historii konwersacji, koncentrując się na wszystkich decyzjach związanych z planowaniem bazy danych.
 2. Dopasowanie zaleceń modelu do odpowiedzi udzielonych w historii konwersacji. Zidentyfikuj, które zalecenia są istotne w oparciu o dyskusję.
 3. Przygotuj szczegółowe podsumowanie rozmowy, które obejmuje:

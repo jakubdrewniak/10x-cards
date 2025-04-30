@@ -1,7 +1,9 @@
 # Przewodnik Implementacji Usługi OpenRouter
 
 ## 1. Opis usługi
+
 Usługa OpenRouter integruje się z interfejsem API OpenRouter w celu wsparcia czatów opartych na LLM. Jej główne zadania to:
+
 1. Przetwarzanie komunikatów systemowych, które definiują kontekst działania modelu (np. "You are a helpful assistant.")
 2. Obsługa komunikatów użytkownika, czyli zapytań lub danych przekazywanych przez użytkownika
 3. Formatowanie odpowiedzi przy użyciu zdefiniowanego schematu JSON, np.:
@@ -10,14 +12,18 @@ Usługa OpenRouter integruje się z interfejsem API OpenRouter w celu wsparcia c
 5. Konfiguracja parametrów modelu (np. { temperature: 0.7, max_tokens: 1024 })
 
 ## 2. Opis konstruktora
+
 Konstruktor usługi będzie odpowiedzialny za:
+
 1. Inicjalizację kluczowych parametrów (API Key, URL API, domyślna nazwa modelu, domyślne parametry modelu)
 2. Ładowanie konfiguracji z zmiennych środowiskowych
 3. Ustawienie domyślnego komunikatu systemowego
 4. Przygotowanie struktur niezbędnych dla komunikacji z OpenRouter API
 
 ## 3. Publiczne metody i pola
+
 ### Publiczne metody:
+
 1. **sendChat** – wysyła zapytanie do OpenRouter API, łącząc komunikat systemowy i użytkownika, a następnie odbiera ustrukturyzowaną odpowiedź.
 2. **setSystemMessage** – ustawia lub aktualizuje komunikat systemowy wyznaczający kontekst działania modelu.
 3. **setUserMessage** – umożliwia ustawienie komunikatu użytkownika.
@@ -27,6 +33,7 @@ Konstruktor usługi będzie odpowiedzialny za:
 6. **setModelName** – ustawia nazwę modelu, która zostanie użyta przy komunikacji z API.
 
 ### Pola:
+
 1. **apiKey** – klucz dostępowy do OpenRouter API
 2. **apiUrl** – adres endpointu API
 3. **defaultModelName** – domyślna nazwa modelu
@@ -36,18 +43,23 @@ Konstruktor usługi będzie odpowiedzialny za:
 7. **responseFormat** – struktura oczekiwanej odpowiedzi
 
 ## 4. Prywatne metody i pola
+
 ### Prywatne metody:
+
 1. **preparePayload** – przygotowuje ładunek zapytania, łącząc komunikaty systemowy i użytkownika, a także konfiguracje modelu.
 2. **validateResponse** – weryfikuje odpowiedź API, sprawdzając zgodność z ustalonym schematem JSON (responseFormat).
 3. **handleError** – centralizuje logikę obsługi błędów, w tym implementację mechanizmu ponownych prób (retry) oraz logowanie błędów.
 
 ### Prywatne pola:
+
 1. **retryCount** – liczba prób ponowienia wysłania zapytania w przypadku wystąpienia błędu
 2. **timeout** – maksymalny czas oczekiwania na odpowiedź API
 3. **errorLog** – wewnętrzny rejestr zdarzeń i błędów
 
 ## 5. Obsługa błędów
+
 Potencjalne scenariusze błędów oraz proponowane rozwiązania:
+
 1. **Błąd połączenia** – problem z łącznością sieciową lub niedostępność API.
    - Rozwiązanie: Implementacja mechanizmu retry z exponential back-off.
 2. **Błąd autoryzacji** – nieprawidłowy lub wygasły API Key.
@@ -60,6 +72,7 @@ Potencjalne scenariusze błędów oraz proponowane rozwiązania:
    - Rozwiązanie: Monitorowanie liczby zapytań i implementacja logiki ograniczającej wysyłanie zapytań.
 
 ## 6. Kwestie bezpieczeństwa
+
 1. Wszystkie połączenia z OpenRouter API muszą być wykonywane przez HTTPS.
 2. API Key oraz inne dane wra</service_rules>
 
@@ -92,6 +105,7 @@ Na podstawie przeprowadzonej analizy utwórz kompleksowy przewodnik implementacj
 7. Plan wdrożenia krok po kroku
 
 Upewnij się, że plan wdrożenia
+
 1. Jest dostosowany do określonego stacku technologicznego
 2. Obejmuje wszystkie istotne komponenty usługi OpenRouter
 3. Obejmuje obsługę błędów i najlepsze praktyki bezpieczeństwa
@@ -100,12 +114,10 @@ Upewnij się, że plan wdrożenia
 
 Używa odpowiedniego formatowania Markdown dla lepszej czytelności. Końcowy wynik powinien składać się wyłącznie z przewodnika implementacji w formacie Markdown i nie powinien powielać ani powtarzać żadnej pracy wykonanej w sekcji podziału implementacji.
 
-Zapisz przewodnik implementacji w .ai/openrouter-service-implementation-plan.mdżliwe powinny być przechowywane w zmiennych środowiskowych, a nie twardo zakodowane.
-3. Należy stosować walidację i sanitizację wszystkich danych wejściowych oraz odpowiedzi.
-4. Ograniczenie logowania szczegółowych informacji, szczególnie w przypadku błędów autoryzacji lub danych użytkownika.
-5. Walidacja odpowiedzi za pomocą ściśle określonego schema JSON, aby zabezpieczyć system przed nieoczekiwanymi danymi.
+Zapisz przewodnik implementacji w .ai/openrouter-service-implementation-plan.mdżliwe powinny być przechowywane w zmiennych środowiskowych, a nie twardo zakodowane. 3. Należy stosować walidację i sanitizację wszystkich danych wejściowych oraz odpowiedzi. 4. Ograniczenie logowania szczegółowych informacji, szczególnie w przypadku błędów autoryzacji lub danych użytkownika. 5. Walidacja odpowiedzi za pomocą ściśle określonego schema JSON, aby zabezpieczyć system przed nieoczekiwanymi danymi.
 
 ## 7. Plan wdrożenia krok po kroku
+
 1. **Stworzenie modułu:** Utwórz klasę `OpenRouterService` w katalogu `src/lib` odpowiedzialną za integrację z OpenRouter API.
 2. **Konfiguracja środowiska:** Zdefiniuj zmienne środowiskowe (API Key, API URL, domyślna nazwa modelu, domyślne parametry) oraz załaduj je w konstruktorze usługi.
 3. **Implementacja konstruktora:** Zaimplementuj inicjalizację wszystkich kluczowych pól i ustawień, w tym domyślnego komunikatu systemowego.
@@ -120,4 +132,3 @@ Zapisz przewodnik implementacji w .ai/openrouter-service-implementation-plan.md�
    - `validateResponse`: Weryfikacja odpowiedzi API według zdefiniowanego schematu JSON.
    - `handleError`: Centralna obsługa błędów, logowanie i mechanizmy retry.
 6. **Logowanie i monitoring:** Dodaj mechanizmy logowania i monitoringu błędów, aby szybko identyfikować i reagować na problemy.
- 

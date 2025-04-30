@@ -24,7 +24,8 @@ export function DeleteConfirmationDialog({ isOpen, itemCount, onConfirm, onCance
           <AlertDialogTitle>Czy jesteś absolutnie pewien?</AlertDialogTitle>
           <AlertDialogDescription>
             Tej operacji nie można cofnąć. Spowoduje to trwałe usunięcie{" "}
-            {itemCount === 1 ? "tej fiszki" : `tych ${itemCount} ${itemCount < 5 ? "fiszek" : "fiszek"}`} z Twojego konta.
+            {itemCount === 1 ? "tej fiszki" : `tych ${itemCount} ${itemCount < 5 ? "fiszek" : "fiszek"}`} z Twojego
+            konta.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
 import type { GenerateFlashcardsResponseDTO, GenerateFlashcardsCommand, AIFlashcardProposalDTO } from "../../types";
-import type { SupabaseClient } from "../../db/supabase.client";
 import { OpenRouterService, FLASHCARD_GENERATION_SCHEMA } from "../../lib/openrouter.service";
 
 // Helper function to safely log auth details

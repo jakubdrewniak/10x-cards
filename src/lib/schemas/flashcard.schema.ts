@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { Source } from "../../types";
 
 // Schema for query parameters when listing flashcards
 export const flashcardsQuerySchema = z.object({

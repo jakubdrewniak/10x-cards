@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run linting
         run: npm run lint
 
@@ -32,19 +32,19 @@ jobs:
       NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run unit tests with coverage
         run: npm run test:coverage -- --coverage.thresholds.lines=0 --coverage.thresholds.functions=0 --coverage.thresholds.statements=0 --coverage.thresholds.branches=0
-      
+
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
         with:
@@ -56,7 +56,7 @@ jobs:
     name: E2E Tests
     needs: lint
     runs-on: ubuntu-latest
-    environment: 'integration'
+    environment: "integration"
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -68,22 +68,22 @@ jobs:
       OPENROUTER_DEFAULT_MODEL: ${{ secrets.OPENROUTER_DEFAULT_MODEL }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-      
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      
+
       - name: Run E2E tests
         run: npm run e2e
-      
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Create PR Comment
         uses: actions/github-script@v7
         with:
@@ -108,19 +108,19 @@ jobs:
             // Create the comment body
             const body = `
             ## 📊 PR Test Results
-            
+
             ### Checks
             - ✅ Linting: Passed
             - ✅ Unit Tests: Passed
             - ✅ E2E Tests: Passed
-            
+
             [View detailed unit test coverage report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             [View detailed Playwright report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: body
-            }); 
+            });

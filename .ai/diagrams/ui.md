@@ -1,5 +1,7 @@
 <architecture_analysis>
+
 1. Komponenty wymienione w dokumentach:
+
    - Strony Astro: Strona Rejestracji (/register), Strona Logowania (/login), Strona Reset Hasła (/password-reset).
    - Layouty: Wspólny layout z logiką ukrywania elementów (dla niezalogowanych) oraz widoczne elementy dla zalogowanych użytkowników.
    - Komponenty React: RegistrationForm, LoginForm, PasswordResetForm - komponenty obsługujące interaktywne formularze.
@@ -8,11 +10,13 @@
    - Middleware: Mechanizm weryfikacji sesji przed renderowaniem stron chronionych.
 
 2. Główne strony i odpowiadające im komponenty:
+
    - /register: Strona Astro zawierająca RegistrationForm.
    - /login: Strona Astro zawierająca LoginForm.
    - /password-reset: Strona Astro zawierająca PasswordResetForm.
 
 3. Przepływ danych między komponentami:
+
    - Użytkownik wprowadza dane w formularzach (RegistrationForm, LoginForm, PasswordResetForm) -> komponenty React wykonują walidację i wysyłają dane do odpowiednich backend endpointów.
    - Endpointy API przetwarzają żądania, komunikują się z Supabase Client, a wyniki (sukces/błąd) przekazywane są do komponentów.
    - Middleware w Astro przed renderowaniem stron chronionych weryfikuje stan sesji.
@@ -24,9 +28,10 @@
    - Middleware: Sprawdza stan sesji użytkownika przed renderowaniem stron.
    - API Endpoints: Obsługa operacji rejestracji, logowania, wylogowywania i resetowania hasła.
    - Supabase Client: Komunikacja z usługą Supabase Auth.
-</architecture_analysis>
+     </architecture_analysis>
 
 <mermaid_diagram>
+
 ```mermaid
 flowchart TD
     %% Moduł Frontend
@@ -83,5 +88,6 @@ flowchart TD
     %% Stylizacja autentykacji
     classDef authStyle fill:#f96,stroke:#333,stroke-width:2px;
     class E,F,G,H,I,K,L authStyle;
-``` 
-</mermaid_diagram> 
+```
+
+</mermaid_diagram>

@@ -3,15 +3,15 @@ Jesteś asystentem AI, którego zadaniem jest pomoc w zaplanowaniu architektury 
 Prosimy o uważne zapoznanie się z poniższymi informacjami:
 
 <product_requirements>
-@prd.md 
+@prd.md
 </product_requirements>
 
 <tech_stack>
-@tech-stack.md 
+@tech-stack.md
 </tech_stack>
 
 <api_plan>
-@api-plan.md 
+@api-plan.md
 </api_plan>
 
 Przeanalizuj dostarczone informacje, koncentrując się na aspektach istotnych dla projektowania interfejsu użytkownika. Rozważ następujące kwestie:
@@ -54,7 +54,6 @@ Kontynuuj ten proces, generując nowe pytania i rekomendacje w oparciu o przekaz
 
 Pamiętaj, aby skupić się na jasności, trafności i dokładności wyników. Nie dołączaj żadnych dodatkowych komentarzy ani wyjaśnień poza określonym formatem wyjściowym.
 
-
 <ui_architecture_planning_output>
 <pytania>
 Jakie widoki i ekrany powinny zostać zdefiniowane dla głównych funkcjonalności aplikacji (np. rejestracja, logowanie, dashboard z listą fiszek, generowanie fiszek przez AI, edycja fiszek, sesja nauki, profil użytkownika)?
@@ -81,7 +80,8 @@ Rozważyć wdrożenie dodatkowych komponentów interfejsu (modale, alerty, potwi
 Ustalić strategię testowania i monitoringu interfejsu, która umożliwi szybkie reagowanie na problemy użytkowników i usprawnienie przepływu danych między UI a API.
 </rekomendacje>
 </ui_architecture_planning_output>
-1. ekran auth, dashboard, widok geenrowania fiszek, widok listy fiszek  z modalem do edycji i przyciskiem do usuwana, panel uzytkownika, ekran do sesji powtórkowych
+
+1. ekran auth, dashboard, widok geenrowania fiszek, widok listy fiszek z modalem do edycji i przyciskiem do usuwana, panel uzytkownika, ekran do sesji powtórkowych
 2. tak, user wchodzi na ekran generowania fiszek, podaje tekst i na jego podstawie wywswietlamy listę propozycji z opcją edycji, akceptacji lub odrzucenia
 3. stan autoryzacji będzie obslugiwany przez Supabase
 4. topbar z biblioteki shadcn
@@ -92,10 +92,7 @@ Ustalić strategię testowania i monitoringu interfejsu, która umożliwi szybki
 9. tak, ale nimi zajmiemy się później, skupmy się na MVP
 10. to jest kwestia do ustalenia przy planowaniu, zaproponuj coś
 
-Co do rekomendacji
-9. dodatkowe elementy dodamy później, skupmy się na MVP
-10. testowanie nie jest w scope tej analizy
- 
+Co do rekomendacji 9. dodatkowe elementy dodamy później, skupmy się na MVP 10. testowanie nie jest w scope tej analizy
 
 <ui_architecture_planning_output>
 <pytania>
@@ -123,6 +120,7 @@ Na etapie MVP skupić się na kluczowych funkcjonalnościach, rezerwując dodatk
 Proponuję, aby topbar zawierał dynamiczne menu z opcjami autoryzacji (logowanie/wylogowanie), dostęp do panelu użytkownika oraz skróty do głównych widoków (dashboard, sesja powtórkowa), co usprawni nawigację użytkownika.
 </rekomendacje>
 </ui_architecture_planning_output>
+
 1. Większość widoków będzie miała swój routing, poza dodawaniem nowych fiszek- te będzie można dodawac z widoku listy za pomocą modala
 2. nie
 3. tylko podstawowe dane
@@ -132,11 +130,12 @@ Proponuję, aby topbar zawierał dynamiczne menu z opcjami autoryzacji (logowani
 7. na początek jedynie hooki i kontekst
 8. głównie błędy walidacji na frontendzie i błędy komunikacji
 9. nalezy doprecyzować. użyj standardowych wartości
-10. tak, dostep do kluczowych widoków 
+10. tak, dostep do kluczowych widoków
 
 ---
 
 Jesteś asystentem AI, którego zadaniem jest podsumowanie rozmowy na temat planowania architektury UI dla MVP i przygotowanie zwięzłego podsumowania dla następnego etapu rozwoju. W historii konwersacji znajdziesz następujące informacje:
+
 1. Dokument wymagań produktu (PRD)
 2. Informacje o stacku technologicznym
 3. Plan API
@@ -144,6 +143,7 @@ Jesteś asystentem AI, którego zadaniem jest podsumowanie rozmowy na temat plan
 5. Zalecenia dotyczące architektury UI
 
 Twoim zadaniem jest:
+
 1. Podsumować historię konwersacji, koncentrując się na wszystkich decyzjach związanych z planowaniem architektury UI.
 2. Dopasować zalecenia modelu do odpowiedzi udzielonych w historii konwersacji. Zidentyfikować, które zalecenia są istotne w oparciu o dyskusję.
 3. Przygotować szczegółowe podsumowanie rozmowy, które obejmuje:
@@ -171,50 +171,41 @@ Twoim zadaniem jest:
 
 Końcowy wynik powinien zawierać tylko treść w formacie markdown. Upewnij się, że Twoje podsumowanie jest jasne, zwięzłe i zapewnia cenne informacje dla następnego etapu planowania architektury UI i integracji z API.
 
-
-
-
-
-
-----------------------
-
-
-
-
-
-
-
+---
 
 <conversation_summary>
 <decisions>
-1. Ustalono, że główne widoki to: ekran autoryzacji, dashboard, widok generowania fiszek, widok listy fiszek (z modalem do edycji i dodawania), panel użytkownika oraz ekran sesji powtórkowych.  
-2. Dodawanie nowych fiszek odbywać się będzie z widoku listy za pomocą modala.  
-3. W widoku generowania fiszek użytkownik wprowadza tekst, który generuje listę propozycji z opcjami edycji, akceptacji lub odrzucenia.  
-4. Panel użytkownika będzie prezentował tylko podstawowe dane.  
-5. Mechanika sesji powtórkowych będzie podstawowa, obejmująca prezentację przodu/tyłu fiszki.  
-6. Edycja fiszek będzie realizowana pojedynczo przy użyciu modala, analogicznie do procesu dodawania.  
-7. Zarządzanie stanem będzie oparte wyłącznie na hookach i React Context, bez dodatkowych bibliotek do momentu, gdy MVP zostanie rozszerzone.  
-8. Autoryzacja i zarządzanie sesjami będą obsługiwane przez Supabase, korzystając z mechanizmów JWT i RLS.  
-9. Obsługa błędów skoncentruje się głównie na walidacji formularzy (błędy inline) oraz komunikacji z API.  
+
+1. Ustalono, że główne widoki to: ekran autoryzacji, dashboard, widok generowania fiszek, widok listy fiszek (z modalem do edycji i dodawania), panel użytkownika oraz ekran sesji powtórkowych.
+2. Dodawanie nowych fiszek odbywać się będzie z widoku listy za pomocą modala.
+3. W widoku generowania fiszek użytkownik wprowadza tekst, który generuje listę propozycji z opcjami edycji, akceptacji lub odrzucenia.
+4. Panel użytkownika będzie prezentował tylko podstawowe dane.
+5. Mechanika sesji powtórkowych będzie podstawowa, obejmująca prezentację przodu/tyłu fiszki.
+6. Edycja fiszek będzie realizowana pojedynczo przy użyciu modala, analogicznie do procesu dodawania.
+7. Zarządzanie stanem będzie oparte wyłącznie na hookach i React Context, bez dodatkowych bibliotek do momentu, gdy MVP zostanie rozszerzone.
+8. Autoryzacja i zarządzanie sesjami będą obsługiwane przez Supabase, korzystając z mechanizmów JWT i RLS.
+9. Obsługa błędów skoncentruje się głównie na walidacji formularzy (błędy inline) oraz komunikacji z API.
 10. Responsywność interfejsu zostanie osiągnięta przy użyciu standardowych breakpointów Tailwind (sm, md, lg) oraz komponentów, takich jak topbar z biblioteki shadcn, oferujących dostęp do kluczowych widoków.
-</decisions>
-<matched_recommendations>
-1. Utworzenie dedykowanych stron dla każdego widoku (autoryzacja, dashboard, generowanie fiszek, lista fiszek z modalem, panel użytkownika, sesja powtórkowa).  
-2. Integracja z Supabase w celu obsługi autoryzacji oraz zabezpieczenia widoków przeznaczonych dla zalogowanych użytkowników.  
-3. Wykorzystanie topbaru z biblioteki shadcn do zapewnienia spójnej i intuicyjnej nawigacji między kluczowymi widokami.  
-4. Zastosowanie Tailwind CSS z utility variants dla standardowych breakpointów (sm, md, lg), aby zapewnić responsywność UI.  
-5. Zarządzanie stanem aplikacji przez hooki i React Context, co umożliwia przyszłą integrację z innymi bibliotekami (np. Zustand) w razie potrzeby.  
-6. Implementacja inline błędów w formularzach, aby zapewnić natychmiastową informację o problemach z walidacją lub komunikacją z API.
-</matched_recommendations>
-<ui_architecture_planning_summary>
+    </decisions>
+    <matched_recommendations>
+11. Utworzenie dedykowanych stron dla każdego widoku (autoryzacja, dashboard, generowanie fiszek, lista fiszek z modalem, panel użytkownika, sesja powtórkowa).
+12. Integracja z Supabase w celu obsługi autoryzacji oraz zabezpieczenia widoków przeznaczonych dla zalogowanych użytkowników.
+13. Wykorzystanie topbaru z biblioteki shadcn do zapewnienia spójnej i intuicyjnej nawigacji między kluczowymi widokami.
+14. Zastosowanie Tailwind CSS z utility variants dla standardowych breakpointów (sm, md, lg), aby zapewnić responsywność UI.
+15. Zarządzanie stanem aplikacji przez hooki i React Context, co umożliwia przyszłą integrację z innymi bibliotekami (np. Zustand) w razie potrzeby.
+16. Implementacja inline błędów w formularzach, aby zapewnić natychmiastową informację o problemach z walidacją lub komunikacją z API.
+    </matched_recommendations>
+    <ui_architecture_planning_summary>
+
 - Główne wymagania dotyczące architektury UI obejmują utworzenie oddzielnych widoków: autoryzacji (logowanie, rejestracja), dashboardu prezentującego listę fiszek, widoku generowania fiszek, widoku listy fiszek z możliwością edycji/dodawania za pomocą modala, panelu użytkownika oraz ekranu sesji powtórkowych.
 - Kluczowe przepływy użytkownika zaczynają się od autoryzacji, następnie przechodzą do zarządzania fiszkami (przegląd, dodawanie, edycja, usuwanie) oraz generowania nowych fiszek na podstawie wprowadzonego tekstu.
 - Integracja z API będzie oparta o Supabase, który odpowiada za autoryzację i zabezpieczenie danych. Zarządzanie stanem danych realizowane będzie przy użyciu wbudowanych hooków i React Context, co pozwala na synchronizację z API oraz łatwą implementację przyszłych rozwiązań jak Zustand.
 - W kontekście responsywności, projekt opiera się na Tailwind CSS z użyciem standardowych breakpointów (sm, md, lg), co pozwala na adaptacyjność interfejsu na różnych urządzeniach, a komponenty shadcn zapewnią zgodność z standardami dostępności.
 - Kwestie bezpieczeństwa są adresowane poprzez mechanizmy autoryzacji i zarządzania sesją Supabase (JWT, RLS) oraz obsługę błędów inline, głównie w kontekście walidacji formularzy i komunikacji z API.
-</ui_architecture_planning_summary>
-<unresolved_issues>
-1. Szczegóły dotyczące zawartości topbaru pozostają do ustalenia – choć podstawowy dostęp do kluczowych widoków został potwierdzony, wymagania dotyczące ewentualnych dodatkowych opcji (np. menu użytkownika, przełączanie języka) nie są jeszcze sprecyzowane.  
+  </ui_architecture_planning_summary>
+  <unresolved_issues>
+
+1. Szczegóły dotyczące zawartości topbaru pozostają do ustalenia – choć podstawowy dostęp do kluczowych widoków został potwierdzony, wymagania dotyczące ewentualnych dodatkowych opcji (np. menu użytkownika, przełączanie języka) nie są jeszcze sprecyzowane.
 2. Funkcjonalności dodatkowe, takie jak zbiorcza edycja/usuwanie fiszek, oraz dodatkowe modale dla krytycznych operacji, będą rozważane w przyszłych wersjach, a nie na etapie MVP.
-</unresolved_issues>
-</conversation_summary>
+   </unresolved_issues>
+   </conversation_summary>

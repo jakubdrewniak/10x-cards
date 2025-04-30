@@ -44,9 +44,10 @@ Schemat bazy danych dla aplikacji 10x-cards
 - **user_id**: UUID NOT NULL REFERENCES users(id)
 
 **Triggery:**
-Automatycznie aktualizuj kolumnę `updated_at` przy aktualizacji rekordu. 
+Automatycznie aktualizuj kolumnę `updated_at` przy aktualizacji rekordu.
 
 **Row Level Security (RLS):**
+
 - RLS zapewnia, że użytkownik ma dostęp tylko do swoich fiszek. Przykładowa polityka:
 
 ```sql
@@ -82,11 +83,12 @@ CREATE POLICY flashcards_rls_policy ON flashcards
 3. Indeksy
 
 W tabeli `flashcards`:
+
 - indeks na kolumnie `user_id`.
 - indeks na kolumnie `generation_id`.
-W tabeli `generations`:
+  W tabeli `generations`:
 - indeks na kolumnie `user_id`
-W tabeli `generation_error_logs`:
+  W tabeli `generation_error_logs`:
 - indeks na kolumnie `user_id`
 
 ---

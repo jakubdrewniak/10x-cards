@@ -1,27 +1,27 @@
 # Plan Testów
 
 ## 1. Wprowadzenie
+
 - **Cel planu testów:**  
   Zapewnienie wysokiej jakości aplikacji przez kompleksowe przetestowanie kluczowych funkcji, komponentów interfejsu, integracji między frontendem a backendem oraz poprawności działania logiki biznesowej.
 
-- **Zakres testów:**  
-  - Testy jednostkowe (funkcje, metody, komponenty React)  
-  - Testy integracyjne (weryfikacja współdziałania komponentów, API, middleware i modułów logiki biznesowej)  
-  - Testy systemowe/end-to-end (sprawdzenie pełnego przepływu użytkownika, interakcji z bazą danych Supabase, renderowania stron)  
-  - Testy regresji (automatyzacja powtórnych testów po wprowadzonych zmianach)  
+- **Zakres testów:**
+  - Testy jednostkowe (funkcje, metody, komponenty React)
+  - Testy integracyjne (weryfikacja współdziałania komponentów, API, middleware i modułów logiki biznesowej)
+  - Testy systemowe/end-to-end (sprawdzenie pełnego przepływu użytkownika, interakcji z bazą danych Supabase, renderowania stron)
+  - Testy regresji (automatyzacja powtórnych testów po wprowadzonych zmianach)
   - Testy manualne w obszarach wymagających weryfikacji wizualnej lub nieujętych w automatyce
 
 ## 2. Strategia testowania
+
 - **Typy testów do przeprowadzenia:**
+
   - **Testy jednostkowe:**  
     Skoncentrowane na pojedynczych funkcjach i komponentach, głównie w obrębie logiki aplikacji, komponentów React oraz helperów i serwisów.
-    
   - **Testy integracyjne:**  
     Weryfikacja komunikacji między front-endem (Astro, React, Tailwind, Shadcn/ui) a backendem (API, Supabase, middleware).
-    
   - **Testy end-to-end:**  
     Automatyczne symulacje przepływu użytkownika przy użyciu Playwright, sprawdzające pełną ścieżkę od renderowania strony, poprzez interakcję, aż do komunikacji z bazą danych.
-    
   - **Testy manualne:**  
     Kontrola UI, responsywności oraz testy wizualne komponentów Shadcn/ui i stylów Tailwind.
 
@@ -29,17 +29,16 @@
     Weryfikacja komponentów UI za pomocą Storybook, zapewniająca spójność wizualną i dokumentację komponentów.
 
 - **Priorytety testowania:**
+
   - **Najwyższy priorytet:**  
     Testowanie krytycznych punktów systemu, tj. API endpoints, middleware i integracja z Supabase.
-    
   - **Średni priorytet:**  
     Testowanie komponentów interfejsu użytkownika (Astro/React) oraz logiki aplikacji w helperach i serwisach.
-    
   - **Niższy priorytet:**  
     Testy niefunkcjonalne, takie jak testy wizualne responsywności i zgodności stylów.
 
 - **Narzędzia i technologie:**
-  - **Frameworki testowe:** 
+  - **Frameworki testowe:**
     - Vitest (jako główny framework dla testów jednostkowych i integracyjnych)
     - React Testing Library (dla komponentów React)
     - Testing Library dla Astro (dla komponentów Astro)
@@ -52,7 +51,9 @@
   - **CI/CD:** GitHub Actions
 
 ## 3. Środowisko testowe
+
 - **Wymagania sprzętowe i programowe:**
+
   - Komputery/serwery z systemami kompatybilnymi z Node.js oraz przeglądarkami wspierającymi nowoczesne technologie webowe
   - Zainstalowany Node.js w odpowiedniej wersji (zgodne z wymaganiami projektu)
   - Dostęp do testowej instancji Supabase oraz ewentualnych serwerów API
@@ -63,6 +64,7 @@
   - Symulacja middleware i środowisk lokalnych w celu pełnej weryfikacji przepływu żądań
 
 ## 4. Przypadki testowe
+
 - **Renderowanie stron i routing:**  
   Sprawdzenie, czy wszystkie strony generowane przez Astro renderują się poprawnie i czy routing działa zgodnie z oczekiwaniami.
 
@@ -71,6 +73,7 @@
 
 - **API i komunikacja z Supabase:**  
   Testy integracyjne sprawdzające:
+
   - Poprawność działania endpointów API w katalogu `src/pages/api`
   - Bezpieczną i spójną komunikację z bazą danych Supabase
   - Obsługę błędów i walidację danych wejściowych
@@ -88,38 +91,36 @@
   Weryfikacja wydajności frontendu z wykorzystaniem Lighthouse CI, sprawdzająca czas ładowania, dostępność i inne metryki wydajnościowe.
 
 ## 5. Harmonogram testów
-- **Faza przygotowawcza:**  
+
+- **Faza przygotowawcza:**
   - Analiza kodu i konfiguracja środowiska testowego (1-2 dni)
-  
-- **Testy jednostkowe i integracyjne:**  
+- **Testy jednostkowe i integracyjne:**
   - Opracowanie i uruchomienie automatycznych testów (3-5 dni)
-  
-- **Testy end-to-end:**  
+- **Testy end-to-end:**
   - Pisanie scenariuszy testowych oraz konfiguracja Playwright (3 dni)
-  
 - **Testy wizualne i dokumentacja komponentów:**
   - Konfiguracja Storybook i tworzenie dokumentacji komponentów (2 dni)
-  
-- **Testy manualne:**  
+- **Testy manualne:**
   - Weryfikacja interfejsu oraz przypadki brzegowe (2 dni)
-  
 - **Testy wydajnościowe:**
   - Konfiguracja i uruchomienie Lighthouse CI (1 dzień)
-  
-- **Faza przeglądu i raportowania:**  
+- **Faza przeglądu i raportowania:**
   - Analiza wyników, raportowanie wykrytych błędów, rewizja testów w razie potrzeby (1-2 dni)
 
 ## 6. Raportowanie i śledzenie błędów
-- **Proces raportowania błędów:**  
+
+- **Proces raportowania błędów:**
+
   - Automatyczne generowanie raportów przez GitHub Actions
   - Ręczne zgłaszanie błędów przez testerów w systemie do śledzenia błędów (np. Jira)
   - Codzienne/okresowe spotkania w celu omówienia statusu testów i znalezionych problemów
 
-- **Narzędzia do śledzenia błędów:**  
+- **Narzędzia do śledzenia błędów:**
   - Jira, GitHub Issues lub inny wybrany system do zarządzania problemami
   - Dashboardy do monitorowania pokrycia testowego i statusu testów
 
 ## 7. Kryteria akceptacji i zakończenia testów
+
 - Minimalne pokrycie kodu testami (np. 80% pokrycia automatycznymi testami)
 - Wszystkie krytyczne i blokujące błędy muszą być usunięte przed wdrożeniem
 - Pozytywne przejście testów end-to-end i akceptacja wyników przez zespół QA oraz developerków
@@ -127,6 +128,7 @@
 - Wszystkie komponenty Shadcn/ui muszą być udokumentowane w Storybook
 
 ## 8. Role i odpowiedzialności w procesie testowania
+
 - **Tester QA:**  
   Planowanie i wykonanie testów, raportowanie błędów, dokumentacja wyników
 - **Programiści/Developers:**  
@@ -135,13 +137,15 @@
   Konfiguracja środowiska testowego, zarządzanie pipeline'ami automatycznych testów oraz monitorowanie środowiska
 
 ## 9. Ryzyka i plany awaryjne
-- **Potencjalne ryzyka:**  
+
+- **Potencjalne ryzyka:**
+
   - Niezgodność wersji technologii (TypeScript, biblioteki React, Tailwind) mogąca skutkować błędami
   - Problemy w integracji między Astro, React i Supabase
   - Błędy związane z middleware i routingiem, mogące wpłynąć na dostępność części systemu
   - Ograniczenia środowiska testowego, np. brak izolacji danych produkcyjnych
 
-- **Plany awaryjne:**  
+- **Plany awaryjne:**
   - Wdrożenie testów regresyjnych przy każdej istotnej zmianie
   - Utrzymywanie kopii zapasowej środowiska testowego oraz bazy danych
   - Regularne aktualizacje narzędzi i bibliotek wykorzystywanych w testach

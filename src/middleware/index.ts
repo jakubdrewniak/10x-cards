@@ -22,7 +22,7 @@ const AUTH_PAGES = ["/login", "/register"];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, redirect }, next) => {
   const supabase = await createSupabaseServerInstance({ cookies });
-  
+
   // Add Supabase instance to locals
   locals.supabase = supabase;
 

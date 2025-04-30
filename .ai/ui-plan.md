@@ -7,6 +7,7 @@ Ogólny przegląd architektury interfejsu obejmuje wyodrębnienie głównych wid
 ## 2. Lista widoków
 
 1. **Ekran autoryzacji**
+
    - **Ścieżka widoku:** /login i /register
    - **Główny cel:** Umożliwienie nowym i istniejącym użytkownikom weryfikacji oraz autoryzacji.
    - **Kluczowe informacje:** Formularze logowania, rejestracji, instrukcje dotyczące hasła.
@@ -14,6 +15,7 @@ Ogólny przegląd architektury interfejsu obejmuje wyodrębnienie głównych wid
    - **UX, dostępność i bezpieczeństwo:** Intuicyjne formularze z natychmiastową walidacją, wsparcie dla czytników ekranowych i bezpieczne przesyłanie danych (JWT).
 
 2. **Widok generowania fiszek**
+
    - **Ścieżka widoku:** /generate
    - **Główny cel:** Pozwolenie użytkownikowi na wygenerowanie fiszek za pomocą AI na podstawie wprowadzonego tekstu.
    - **Kluczowe informacje:** Instrukcje dotyczące długości tekstu, pole tekstowe do wprowadzenia zawartości, wynik generowania (lista propozycji fiszek).
@@ -21,6 +23,7 @@ Ogólny przegląd architektury interfejsu obejmuje wyodrębnienie głównych wid
    - **UX, dostępność i bezpieczeństwo:** Jasno komunikowane ograniczenia długości tekstu, responsywne pole tekstowe, natychmiastowa informacja o błędach (inline).
 
 3. **Widok listy fiszek**
+
    - **Ścieżka widoku:** /flashcards
    - **Główny cel:** Przeglądanie, edycja i usuwanie fiszek.
    - **Kluczowe informacje:** Podgląd fiszek, opcje edycji (modal), przyciski usuwania, paginacja.
@@ -28,6 +31,7 @@ Ogólny przegląd architektury interfejsu obejmuje wyodrębnienie głównych wid
    - **UX, dostępność i bezpieczeństwo:** Intuicyjne akcje edycji z użyciem modalnych okien, potwierdzenia przy usuwaniu, responsywność listy oraz komunikaty o błędach.
 
 4. **Panel użytkownika**
+
    - **Ścieżka widoku:** /profile
    - **Główny cel:** Prezentacja i edycja podstawowych danych użytkownika.
    - **Kluczowe informacje:** Imię, adres email, opcje edycji hasła.
@@ -65,4 +69,4 @@ Ogólny przegląd architektury interfejsu obejmuje wyodrębnienie głównych wid
 - **Lista fiszek:** Komponent prezentujący karty fiszek z opcjami podglądu, edycji i usuwania, wraz z funkcjami paginacji.
 - **Modal:** Okno dialogowe wykorzystywane do edycji lub dodawania fiszek bez konieczności przeładowania widoku.
 - **Przyciski i kontenery:** Spójne elementy interfejsu, zgodne z wytycznymi biblioteki Shadcn/ui, umożliwiające intuicyjną interakcję.
-- **Komponent sesji nauki:** Minimalistyczny interfejs prezentujący fiszki, umożliwiający odsłonięcie tylu i ocenę przyswojenia materiału. 
+- **Komponent sesji nauki:** Minimalistyczny interfejs prezentujący fiszki, umożliwiający odsłonięcie tylu i ocenę przyswojenia materiału.

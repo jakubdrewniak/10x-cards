@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import type { ListFlashcardsResponseDTO, FlashcardDTO, FlashcardFormData } from "@/types";
-import { supabaseClient } from "../../../db/supabase.client";
 
 interface FlashcardViewModel extends FlashcardDTO {
   isSelected: boolean;
@@ -13,27 +12,6 @@ interface FlashcardsState {
   isLoading: boolean;
   error: Error | null;
 }
-
-interface SupabaseFlashcard {
-  id: number;
-  front: string;
-  back: string;
-  source: string;
-  generation_id: number | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-}
-
-// interface FlashcardsActions {
-//   loadFlashcards: (page: number) => Promise<void>;
-//   createFlashcard: (data: FlashcardFormData) => Promise<void>;
-//   updateFlashcard: (id: number, data: FlashcardFormData) => Promise<void>;
-//   deleteFlashcards: (ids: number[]) => Promise<void>;
-//   toggleSelection: (id: number) => void;
-//   selectAll: () => void;
-//   deselectAll: () => void;
-// }
 
 export function useFlashcardsStore(initialData: ListFlashcardsResponseDTO) {
   const [state, setState] = useState<FlashcardsState>({

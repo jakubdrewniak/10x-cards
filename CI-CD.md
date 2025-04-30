@@ -20,6 +20,7 @@ No deployment actions are performed in this workflow.
 **File:** `.github/workflows/ci-cd.yml`
 
 This workflow runs on:
+
 - Push to `main` or `master` branch
 - Manual trigger (workflow_dispatch)
 
@@ -34,6 +35,7 @@ It includes the following jobs:
 ### Manual Workflow Trigger
 
 You can manually trigger the CI/CD workflow from the GitHub Actions tab. When manually triggering, you can select the environment to deploy to:
+
 - Production
 - Staging
 
@@ -49,6 +51,7 @@ For deployment to work properly, the following secrets need to be set in the Git
 ### Dockerfile
 
 The project includes a multi-stage Dockerfile that:
+
 1. Builds the application in a Node.js Alpine container
 2. Creates a minimal production image with only the necessary files
 3. Configures the environment to run the Astro server
@@ -86,4 +89,4 @@ To add this CI/CD configuration to a new project:
 2. Copy the `Dockerfile` and `.dockerignore` files
 3. Update the workflow files as needed for your project's specific requirements
 4. Set up the required secrets in your GitHub repository
-5. Configure your DigitalOcean App Platform or other deployment target 
+5. Configure your DigitalOcean App Platform or other deployment target

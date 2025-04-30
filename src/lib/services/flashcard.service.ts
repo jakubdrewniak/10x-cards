@@ -74,7 +74,6 @@ export class FlashcardService {
     // Start building the query
     let query = this.supabase.from("flashcards").select("*", { count: "exact" }).eq("user_id", user.id);
 
-
     // Apply sorting
     query = query.order(params.sortBy, { ascending: params.order === "asc" });
 

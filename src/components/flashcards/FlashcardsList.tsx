@@ -15,7 +15,7 @@ import {
 const sourceLabels: Record<Source, string> = {
   "ai-full": "Wygenerowane przez AI",
   "ai-edited": "Wygenerowane przez AI (edytowane)",
-  "manual": "Utworzone ręcznie"
+  manual: "Utworzone ręcznie",
 };
 
 interface FlashcardsListProps {
@@ -98,9 +98,7 @@ export function FlashcardsList({
                 </div>
               </CardContent>
               <CardFooter className="mt-auto border-t pt-2 pb-2">
-                <p className="text-xs text-muted-foreground">
-                  {sourceLabels[flashcard.source]}
-                </p>
+                <p className="text-xs text-muted-foreground">{sourceLabels[flashcard.source]}</p>
               </CardFooter>
             </Card>
           ))}

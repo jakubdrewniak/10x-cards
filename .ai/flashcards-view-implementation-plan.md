@@ -1,14 +1,17 @@
 # Plan implementacji widoku Fiszek
 
 ## 1. Przegląd
+
 Widok fiszek to kluczowy element aplikacji umożliwiający użytkownikom zarządzanie swoimi fiszkami edukacyjnymi. Pozwala na przeglądanie, tworzenie, edycję i usuwanie fiszek, z uwzględnieniem operacji pojedynczych i zbiorczych. Widok zawiera zaawansowane funkcje zarządzania stanem, paginację oraz intuicyjny interfejs użytkownika.
 
 ## 2. Routing widoku
+
 - Ścieżka: `/flashcards`
 - Komponent strony: `src/pages/flashcards/index.astro`
 - Wymagana autoryzacja: Tak
 
 ## 3. Struktura komponentów
+
 ```
 FlashcardsPage (React)
 ├── PageHeader
@@ -24,6 +27,7 @@ FlashcardsPage (React)
 ## 4. Szczegóły komponentów
 
 ### FlashcardsPage
+
 - Opis komponentu: Główny kontener widoku, zarządza stanem i logiką biznesową
 - Główne elementy: Header, lista fiszek, modalne okna
 - Obsługiwane interakcje: Zarządzanie stanem globalnym, obsługa paginacji
@@ -32,6 +36,7 @@ FlashcardsPage (React)
 - Propsy: `initialData?: ListFlashcardsResponseDTO`
 
 ### PageHeader
+
 - Opis komponentu: Nagłówek strony z akcjami
 - Główne elementy: Przycisk dodawania, pasek akcji zbiorczych
 - Obsługiwane interakcje: Kliknięcia przycisków akcji
@@ -39,6 +44,7 @@ FlashcardsPage (React)
 - Propsy: `onAddClick: () => void, selectedCount: number, onBulkDelete: () => void`
 
 ### FlashcardsList
+
 - Opis komponentu: Lista fiszek z paginacją
 - Główne elementy: Elementy fiszek, kontrolki paginacji
 - Obsługiwane interakcje: Zaznaczanie fiszek, nawigacja paginacji
@@ -47,6 +53,7 @@ FlashcardsPage (React)
 - Propsy: `flashcards: FlashcardViewModel[], pagination: PaginationDTO, onPageChange: (page: number) => void`
 
 ### FlashcardItem
+
 - Opis komponentu: Pojedynczy element fiszki
 - Główne elementy: Treść fiszki, przyciski akcji, checkbox
 - Obsługiwane interakcje: Edycja, usuwanie, zaznaczanie
@@ -54,6 +61,7 @@ FlashcardsPage (React)
 - Propsy: `flashcard: FlashcardViewModel, onEdit: () => void, onDelete: () => void, onSelect: () => void`
 
 ### FlashcardModal
+
 - Opis komponentu: Modal do tworzenia/edycji fiszki
 - Główne elementy: Formularz, liczniki znaków, przyciski akcji
 - Obsługiwane interakcje: Wprowadzanie tekstu, zapisywanie zmian
@@ -62,6 +70,7 @@ FlashcardsPage (React)
 - Propsy: `flashcard?: FlashcardDTO, onSave: (data: FlashcardFormData) => void, onClose: () => void`
 
 ### DeleteConfirmationDialog
+
 - Opis komponentu: Dialog potwierdzenia usuwania
 - Główne elementy: Komunikat, przyciski potwierdzenia
 - Obsługiwane interakcje: Potwierdzenie/anulowanie
@@ -100,7 +109,9 @@ interface FlashcardValidationErrors {
 ## 6. Zarządzanie stanem
 
 ### useFlashcardsStore
+
 Custom hook zarządzający stanem widoku:
+
 ```typescript
 interface UseFlashcardsStore {
   state: FlashcardsPageState;
@@ -119,12 +130,14 @@ interface UseFlashcardsStore {
 ## 7. Integracja API
 
 ### Endpoints
+
 - GET `/flashcards` - pobieranie listy
 - POST `/flashcards` - tworzenie
 - PUT `/flashcards/:id` - aktualizacja
 - DELETE `/flashcards` - usuwanie (pojedyncze/zbiorcze)
 
 ### Obsługa żądań
+
 - Wykorzystanie klienta HTTP z interceptorami dla autoryzacji
 - Mapowanie odpowiedzi na typy ViewModel
 - Obsługa błędów i ponownych prób
@@ -133,24 +146,28 @@ interface UseFlashcardsStore {
 ## 8. Interakcje użytkownika
 
 ### Tworzenie fiszki
+
 1. Kliknięcie "Dodaj fiszkę"
 2. Wypełnienie formularza
 3. Walidacja w locie
 4. Zapisanie/Anulowanie
 
 ### Edycja fiszki
+
 1. Kliknięcie "Edytuj"
 2. Modyfikacja w modalu
 3. Walidacja w locie
 4. Zapisanie/Anulowanie
 
 ### Usuwanie fiszek
+
 1. Wybór pojedynczej/wielu fiszek
 2. Kliknięcie "Usuń"
 3. Potwierdzenie
 4. Wykonanie operacji
 
 ### Paginacja
+
 1. Nawigacja między stronami
 2. Automatyczne odświeżanie listy
 3. Zachowanie stanu selekcji
@@ -158,12 +175,14 @@ interface UseFlashcardsStore {
 ## 9. Warunki i walidacja
 
 ### Walidacja formularza
+
 - Przód: wymagane, max 200 znaków
 - Tył: wymagane, max 500 znaków
 - Walidacja w locie podczas wpisywania
 - Blokada przycisku zapisu przy błędach
 
 ### Walidacja operacji
+
 - Sprawdzanie autoryzacji
 - Weryfikacja uprawnień do edycji/usuwania
 - Walidacja parametrów paginacji
@@ -171,6 +190,7 @@ interface UseFlashcardsStore {
 ## 10. Obsługa błędów
 
 ### Typy błędów
+
 - Błędy autoryzacji (401)
 - Błędy walidacji (400)
 - Błędy serwera (500)
@@ -178,6 +198,7 @@ interface UseFlashcardsStore {
 - Błędy konkurencyjnej modyfikacji
 
 ### Strategia obsługi
+
 - Wyświetlanie komunikatów użytkownikowi
 - Automatyczne ponowne próby dla błędów sieciowych
 - Obsługa błędów konkurencyjności
@@ -186,11 +207,13 @@ interface UseFlashcardsStore {
 ## 11. Kroki implementacji
 
 1. Konfiguracja routingu i podstawowej struktury
+
    - Utworzenie strony Astro
    - Konfiguracja autoryzacji
    - Podstawowy layout
 
 2. Implementacja komponentów React
+
    - FlashcardsPage
    - PageHeader
    - FlashcardsList
@@ -199,36 +222,43 @@ interface UseFlashcardsStore {
    - DeleteConfirmationDialog
 
 3. Implementacja zarządzania stanem
+
    - useFlashcardsStore
    - Integracja z komponentami
    - Obsługa paginacji
 
 4. Integracja z API
+
    - Klient HTTP
    - Interceptory
    - Mapowanie typów
 
 5. Implementacja formularzy
+
    - Walidacja
    - Obsługa błędów
    - Liczniki znaków
 
 6. Implementacja operacji zbiorczych
+
    - Logika zaznaczania
    - Akcje zbiorcze
    - Potwierdzenia
 
 7. Implementacja obsługi błędów
+
    - Komunikaty
    - Fallback UI
    - Retry logic
 
 8. Optymalizacja wydajności
+
    - Memoizacja
    - Lazy loading
    - Optymistyczne aktualizacje
 
 9. Testy
+
    - Komponenty
    - Integracja
    - E2E
@@ -236,4 +266,4 @@ interface UseFlashcardsStore {
 10. Finalizacja
     - Code review
     - Dokumentacja
-    - Optymalizacja dostępności 
+    - Optymalizacja dostępności

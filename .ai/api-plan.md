@@ -15,6 +15,7 @@
 ### 2.1. Flashcard Endpoints
 
 1. **List Flashcards**
+
    - **Method**: GET
    - **URL**: `/flashcards`
    - **Description**: Retrieves a paginated list of flashcards for the authenticated user.
@@ -39,6 +40,7 @@
    - **Success Codes**: 200 OK
 
 2. **Get Flashcard by ID**
+
    - **Method**: GET
    - **URL**: `/flashcards/:id`
    - **Description**: Retrieves details of a specific flashcard by its id.
@@ -47,6 +49,7 @@
    - **Error Codes**: 404 Not Found
 
 3. **Create Flashcard(s)**
+
    - **Method**: POST
    - **URL**: `/flashcards`
    - **Description**: Creates one or more flashcards, either manually or from AI generation.
@@ -83,6 +86,7 @@
    - **Error Codes**: 400 Bad Request
 
 4. **Update Flashcard**
+
    - **Method**: PUT
    - **URL**: `/flashcards/:id`
    - **Description**: Updates an existing flashcard's content.
@@ -97,10 +101,10 @@
      ```json
      { "message": "Flashcard updated successfully" }
      ```
-   - **Validations:
-      - front: max length: 200 characters
-      - back: max length: 500 characters
-      - source: "ai-edited" or "manual"
+   - \*\*Validations:
+     - front: max length: 200 characters
+     - back: max length: 500 characters
+     - source: "ai-edited" or "manual"
    - **Success Codes**: 200 OK
    - **Error Codes**: 400 Bad Request, 404 Not Found, 401 Unauthorized
 
@@ -122,6 +126,7 @@
 ### 2.3. AI Generation Endpoints (Generations)
 
 1. **Generate Flashcards via AI**
+
    - **Method**: POST
    - **URL**: `/generations`
    - **Description**: Submits source text for AI-based flashcard generation. Creates a new generation record and associated flashcards.
@@ -151,6 +156,7 @@
    - **Error Codes**: 400 Bad Request, 500 Internal Server Error (logs recorded in "generation_error_logs")
 
 2. **List Generations**
+
    - **Method**: GET
    - **URL**: `/generations`
    - **Description**: Retrieves a paginated list of generations for the authenticated user.
@@ -237,6 +243,7 @@
 ## 4. Validation and Business Logic
 
 - **Validation Rules**:
+
   - **Flashcards**: Ensure `front` text is no more than 200 characters and `back` text is no more than 500 characters.
   - **AI Generation**: Input text must be between 1000 and 10000 characters.
   - **Generation Error Logs**: Validate that `sourceTextLength` falls within the acceptable range (1000-10000).
@@ -247,4 +254,4 @@
   - **Flashcard Review**: Users can review generated flashcards. They have the option to accept a flashcard as-is (recorded as `ai-full`) or edit it (updating the source to `ai-edited`).
   - **Pagination, Filtering, and Sorting**: The list endpoint for flashcards supports query parameters to enable efficient browsing and management.
   - **Bulk Operations**: Bulk deletion allows users to manage multiple flashcards in a single request.
-  - **Error Handling**: Any errors during the AI generation process are logged into the `generation_error_logs` table, and the API responds with actionable error messages for the client. 
+  - **Error Handling**: Any errors during the AI generation process are logged into the `generation_error_logs` table, and the API responds with actionable error messages for the client.

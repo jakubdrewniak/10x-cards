@@ -3,6 +3,7 @@
 A web application for efficient flashcard creation and learning powered by AI.
 
 ## Table of Contents
+
 - [Project Description](#project-description)
 - [Tech Stack](#tech-stack)
 - [Getting Started Locally](#getting-started-locally)
@@ -20,6 +21,7 @@ A web application for efficient flashcard creation and learning powered by AI.
 Manual creation of high-quality educational flashcards is time-consuming, which discourages many potential users from utilizing the effective spaced repetition learning method. The typical process of creating flashcards involves analyzing source material, identifying key information, transforming it into a question-answer format, and manually entering each flashcard into a system.
 
 10x-cards solves this problem by automating the flashcard creation process using AI, allowing users to:
+
 - Quickly generate flashcard sets from any text
 - Focus on learning rather than preparing materials
 - Maintain high-quality flashcards without additional effort
@@ -27,6 +29,7 @@ Manual creation of high-quality educational flashcards is time-consuming, which 
 ## Tech Stack
 
 ### Frontend
+
 - [Astro 5](https://astro.build/) - For fast, efficient pages with minimal JavaScript
 - [React 19](https://react.dev/) - For interactive components
 - [TypeScript 5](https://www.typescriptlang.org/) - For type safety
@@ -34,12 +37,15 @@ Manual creation of high-quality educational flashcards is time-consuming, which 
 - [Shadcn/ui](https://ui.shadcn.com/) - For accessible React components
 
 ### Backend
+
 - [Supabase](https://supabase.com/) - For PostgreSQL database, authentication, and BaaS
 
 ### AI
+
 - [Openrouter.ai](https://openrouter.ai/) - For access to various AI models (OpenAI, Anthropic, Google, etc.)
 
 ### Testing
+
 - [Vitest](https://vitest.dev/) - Main framework for unit and integration tests
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) - For testing React components
 - [Testing Library for Astro](https://testing-library.com/) - For testing Astro components
@@ -48,34 +54,40 @@ Manual creation of high-quality educational flashcards is time-consuming, which 
 - [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) - For performance testing
 
 ### CI/CD & Hosting
+
 - GitHub Actions - For CI/CD pipelines
 - DigitalOcean - For hosting via Docker
 
 ## Getting Started Locally
 
 ### Prerequisites
+
 - Node.js 22.14.0 (we recommend using [nvm](https://github.com/nvm-sh/nvm) for node version management)
 - Git
 
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/jakubdrewniak/10x-cards.git
 cd 10x-cards
 ```
 
 2. Install the correct Node.js version
+
 ```bash
 nvm use 22
 ```
 
 3. Install dependencies
+
 ```bash
 npm install
 ```
 
 4. Start the development server
+
 ```bash
 npm run dev
 ```
@@ -97,6 +109,7 @@ In the project directory, you can run:
 ## Project Scope
 
 ### Core Features
+
 - **AI-powered flashcard generation**: Generate flashcards from text with AI
 - **Manual flashcard creation**: Create flashcards manually with a simple interface
 - **Flashcard management**: View, edit, and delete flashcards
@@ -104,6 +117,7 @@ In the project directory, you can run:
 - **Learning with flashcards**: Integrated spaced repetition algorithm
 
 ### Out of Scope for MVP
+
 - Custom advanced spaced repetition algorithm
 - Data import/export functionality
 - Social features (sharing flashcards, public sets)

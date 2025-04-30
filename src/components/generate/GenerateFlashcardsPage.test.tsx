@@ -289,9 +289,7 @@ describe("GenerateFlashcardsPage", () => {
       await userEvent.click(generateButton);
 
       // Check error message
-      expect(
-        await screen.findByText("Nie wygenerowano żadnych fiszek. Spróbuj z innym tekstem.")
-      ).toBeInTheDocument();
+      expect(await screen.findByText("Nie wygenerowano żadnych fiszek. Spróbuj z innym tekstem.")).toBeInTheDocument();
       expect(screen.queryByTestId("loading-indicator")).not.toBeInTheDocument();
       expect(screen.queryByRole("list")).not.toBeInTheDocument();
     });

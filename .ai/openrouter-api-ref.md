@@ -66,62 +66,64 @@ For a complete list of parameters, see the [Parameters](/docs/api-reference/para
     route?: 'fallback';
     // See "Provider Routing" section: openrouter.ai/docs/provider-routing
     provider?: ProviderPreferences;
-  };
 
-  // Subtypes:
+};
 
-  type TextContent = {
-    type: 'text';
-    text: string;
-  };
+// Subtypes:
 
-  type ImageContentPart = {
-    type: 'image_url';
-    image_url: {
-      url: string; // URL or base64 encoded image data
-      detail?: string; // Optional, defaults to "auto"
-    };
-  };
+type TextContent = {
+type: 'text';
+text: string;
+};
 
-  type ContentPart = TextContent | ImageContentPart;
+type ImageContentPart = {
+type: 'image_url';
+image_url: {
+url: string; // URL or base64 encoded image data
+detail?: string; // Optional, defaults to "auto"
+};
+};
 
-  type Message =
-    | {
-        role: 'user' | 'assistant' | 'system';
-        // ContentParts are only for the "user" role:
-        content: string | ContentPart[];
-        // If "name" is included, it will be prepended like this
-        // for non-OpenAI models: `{name}: {content}`
-        name?: string;
-      }
-    | {
-        role: 'tool';
-        content: string;
-        tool_call_id: string;
-        name?: string;
-      };
+type ContentPart = TextContent | ImageContentPart;
 
-  type FunctionDescription = {
-    description?: string;
-    name: string;
-    parameters: object; // JSON Schema object
-  };
+type Message =
+| {
+role: 'user' | 'assistant' | 'system';
+// ContentParts are only for the "user" role:
+content: string | ContentPart[];
+// If "name" is included, it will be prepended like this
+// for non-OpenAI models: `{name}: {content}`
+name?: string;
+}
+| {
+role: 'tool';
+content: string;
+tool_call_id: string;
+name?: string;
+};
 
-  type Tool = {
-    type: 'function';
-    function: FunctionDescription;
-  };
+type FunctionDescription = {
+description?: string;
+name: string;
+parameters: object; // JSON Schema object
+};
 
-  type ToolChoice =
-    | 'none'
-    | 'auto'
-    | {
-        type: 'function';
-        function: {
-          name: string;
-        };
-      };
-  ```
+type Tool = {
+type: 'function';
+function: FunctionDescription;
+};
+
+type ToolChoice =
+| 'none'
+| 'auto'
+| {
+type: 'function';
+function: {
+name: string;
+};
+};
+
+````
 </CodeGroup>
 
 The `response_format` parameter ensures you receive a structured response from the LLM. The parameter is only supported by OpenAI models, Nitro models, and some others - check the providers on the model page on openrouter.ai/models to see if it's supported, and set `require_parameters` to true in your Provider Preferences. See [Provider Routing](/docs/features/provider-routing)
@@ -134,26 +136,27 @@ OpenRouter allows you to specify some optional headers to identify your app and 
 * `X-Title`: Sets/modifies your app's title
 
 <CodeGroup>
-  ```typescript title="TypeScript"
-  fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Bearer <OPENROUTER_API_KEY>',
-      'HTTP-Referer': '<YOUR_SITE_URL>', // Optional. Site URL for rankings on openrouter.ai.
-      'X-Title': '<YOUR_SITE_NAME>', // Optional. Site title for rankings on openrouter.ai.
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'openai/gpt-4o',
-      messages: [
-        {
-          role: 'user',
-          content: 'What is the meaning of life?',
-        },
-      ],
-    }),
-  });
-  ```
+```typescript title="TypeScript"
+fetch('https://openrouter.ai/api/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer <OPENROUTER_API_KEY>',
+    'HTTP-Referer': '<YOUR_SITE_URL>', // Optional. Site URL for rankings on openrouter.ai.
+    'X-Title': '<YOUR_SITE_NAME>', // Optional. Site title for rankings on openrouter.ai.
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    model: 'openai/gpt-4o',
+    messages: [
+      {
+        role: 'user',
+        content: 'What is the meaning of life?',
+      },
+    ],
+  }),
+});
+````
+
 </CodeGroup>
 
 <Info title="Model routing">
@@ -329,9 +332,9 @@ When sending data-base64 string, ensure it contains the content-type of the imag
 
 Supported content types are:
 
-* `image/png`
-* `image/jpeg`
-* `image/webp`
+- `image/png`
+- `image/jpeg`
+- `image/webp`
 
 ## Responses
 
@@ -353,7 +356,7 @@ type Response = {
   choices: (NonStreamingChoice | StreamingChoice | NonChatChoice)[];
   created: number; // Unix timestamp
   model: string;
-  object: 'chat.completion' | 'chat.completion.chunk';
+  object: "chat.completion" | "chat.completion.chunk";
 
   system_fingerprint?: string; // Only present if the provider supports it
 
@@ -416,7 +419,7 @@ type ErrorResponse = {
 
 type ToolCall = {
   id: string;
-  type: 'function';
+  type: "function";
   function: FunctionCall;
 };
 ```
@@ -450,7 +453,7 @@ Here's an example:
 
 OpenRouter normalizes each model's `finish_reason` to one of the following values: `tool_calls`, `stop`, `length`, `content_filter`, `error`.
 
-Some models and providers may have additional finish reasons. The raw finish\_reason string returned by the model is available via the `native_finish_reason` property.
+Some models and providers may have additional finish reasons. The raw finish_reason string returned by the model is available via the `native_finish_reason` property.
 
 ### Querying Cost and Stats
 
@@ -460,7 +463,7 @@ Credit usage and model pricing are based on the **native** token counts (not the
 
 For precise token accounting using the model's native tokenizer, you can retrieve the full generation information via the `/api/v1/generation` endpoint.
 
-You can use the returned `id` to query for the generation stats (including token counts and cost) after the request is complete. This is how you can get the cost and tokens for *all models and requests*, streaming and non-streaming.
+You can use the returned `id` to query for the generation stats (including token counts and cost) after the request is complete. This is how you can get the cost and tokens for _all models and requests_, streaming and non-streaming.
 
 <CodeGroup>
   ```typescript title="Query Generation Stats"
@@ -469,10 +472,12 @@ You can use the returned `id` to query for the generation stats (including token
     { headers },
   );
 
-  const stats = await generation.json();
-  ```
+const stats = await generation.json();
+
+```
 </CodeGroup>
 
 Please see the [Generation](/docs/api-reference/get-a-generation) API reference for the full response shape.
 
 Note that token counts are also available in the `usage` field of the response body for non-streaming completions.
+```

@@ -16,18 +16,21 @@ Unit tests are written using Vitest and React Testing Library. They focus on tes
 ### Unit Testing Guidelines
 
 1. Use the `vi` object for test doubles:
+
    - `vi.fn()` for function mocks
    - `vi.spyOn()` to monitor existing functions
    - `vi.stubGlobal()` for global mocks
 
 2. Place mock factory functions at the top level of your test file:
+
    ```typescript
-   vi.mock('./path-to-module', () => ({
-     myFunction: vi.fn().mockReturnValue('mocked value')
+   vi.mock("./path-to-module", () => ({
+     myFunction: vi.fn().mockReturnValue("mocked value"),
    }));
    ```
 
 3. Use inline snapshots for readable assertions:
+
    ```typescript
    expect(component).toMatchInlineSnapshot();
    ```
@@ -55,23 +58,26 @@ E2E tests use Playwright to test the application from a user's perspective. They
 ### E2E Testing Guidelines
 
 1. Use the Page Object Model for maintainable tests:
+
    - Create page objects in the `e2e/pages` directory
    - Abstract selectors and common actions into page classes
 
 2. Use locators for resilient element selection:
+
    ```typescript
-   page.getByRole('button', { name: 'Submit' });
-   page.getByLabel('Email');
+   page.getByRole("button", { name: "Submit" });
+   page.getByLabel("Email");
    ```
 
 3. Implement visual comparison when appropriate:
+
    ```typescript
-   await expect(page).toHaveScreenshot('expected-state.png');
+   await expect(page).toHaveScreenshot("expected-state.png");
    ```
 
 4. Leverage trace viewer for debugging test failures:
    ```typescript
-   test.use({ trace: 'on' });
+   test.use({ trace: "on" });
    ```
 
 ## Test File Naming and Location
@@ -83,9 +89,11 @@ E2E tests use Playwright to test the application from a user's perspective. They
 ## CI/CD Integration
 
 Tests automatically run in GitHub Actions:
+
 - On push to main branch
 - On pull requests to main branch
 
 The workflow will:
+
 1. Run unit tests and generate coverage reports
-2. Run E2E tests and upload test artifacts 
+2. Run E2E tests and upload test artifacts

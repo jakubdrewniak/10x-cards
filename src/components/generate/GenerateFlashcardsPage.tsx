@@ -128,7 +128,9 @@ export function GenerateFlashcardsPage() {
         .join("\n\n");
 
       await navigator.clipboard.writeText(flashcardsText);
-      toast.success(`Pomyślnie skopiowano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"} do schowka!`);
+      toast.success(
+        `Pomyślnie skopiowano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"} do schowka!`
+      );
 
       // Remove the form clearing code - we want to keep the current view
     } catch (error) {
@@ -172,7 +174,9 @@ export function GenerateFlashcardsPage() {
       }
 
       // Show success toast
-      toast.success(`Pomyślnie zapisano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"}!`);
+      toast.success(
+        `Pomyślnie zapisano ${acceptedOrEdited.length} ${acceptedOrEdited.length === 1 ? "fiszkę" : acceptedOrEdited.length < 5 ? "fiszki" : "fiszek"}!`
+      );
 
       // Clear the form after successful save
       setViewModel((prev) => ({
