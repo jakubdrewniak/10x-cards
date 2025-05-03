@@ -22,6 +22,14 @@ export default defineConfig({
           find: "@",
           replacement: path.resolve("./src"),
         },
+        ...(import.meta.env.PROD
+          ? [
+              {
+                find: "react-dom/server",
+                replacement: "react-dom/server.edge",
+              },
+            ]
+          : []),
       ],
     },
   },
