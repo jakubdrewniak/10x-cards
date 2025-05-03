@@ -13,8 +13,8 @@ dotenv.config({ path: resolve(__dirname, "../.env.test") });
 async function cleanupDatabase() {
   console.log("Starting database cleanup...");
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.PUBLIC_SUPABASE_KEY;
   const testUserId = process.env.E2E_USER_ID;
   const testUsername = process.env.E2E_USERNAME;
   const testPassword = process.env.E2E_PASSWORD;

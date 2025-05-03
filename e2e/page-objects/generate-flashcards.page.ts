@@ -264,8 +264,8 @@ export class GenerateFlashcardsPage {
       // Get credentials from environment variables
       const email = process.env.E2E_USERNAME;
       const password = process.env.E2E_PASSWORD;
-      const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseKey = process.env.SUPABASE_KEY;
+      const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.PUBLIC_SUPABASE_KEY;
 
       if (!email || !password || !supabaseUrl || !supabaseKey) {
         console.log("[AUTH-DEBUG] Missing required environment variables for auth");
@@ -306,7 +306,7 @@ export class GenerateFlashcardsPage {
           {
             name: "sb-access-token",
             value: accessToken,
-            domain: new URL(process.env.SUPABASE_URL || "http://localhost:3000").hostname,
+            domain: new URL(process.env.PUBLIC_SUPABASE_URL || "http://localhost:3000").hostname,
             path: "/",
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -316,7 +316,7 @@ export class GenerateFlashcardsPage {
           {
             name: "sb-refresh-token",
             value: refreshToken,
-            domain: new URL(process.env.SUPABASE_URL || "http://localhost:3000").hostname,
+            domain: new URL(process.env.PUBLIC_SUPABASE_URL || "http://localhost:3000").hostname,
             path: "/",
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
