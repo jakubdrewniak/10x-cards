@@ -86,8 +86,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 10x-cards
-          directory: dist
-          branch: master
-          wranglerVersion: '3'
-          production: true
+          command: pages deploy dist --project-name=10x-cards --branch=master --production
+          wranglerVersion: "3.40.0"
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
