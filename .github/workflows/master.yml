@@ -59,6 +59,12 @@ jobs:
     environment: 
       name: production
       url: ${{ steps.deployment.outputs.deployment-url }}
+    env:
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      PUBLIC_SUPABASE_KEY: ${{ secrets.PUBLIC_SUPABASE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_API_URL: ${{ secrets.OPENROUTER_API_URL }}
+      OPENROUTER_DEFAULT_MODEL: ${{ secrets.OPENROUTER_DEFAULT_MODEL }}
     steps:
       - uses: actions/checkout@v4
 
