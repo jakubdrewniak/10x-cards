@@ -87,9 +87,9 @@ export class OpenRouterService {
   constructor(config?: Partial<OpenRouterConfig>) {
     // Validate environment variables
     const env = envSchema.safeParse({
-      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
-      OPENROUTER_API_URL: process.env.OPENROUTER_API_URL,
-      OPENROUTER_DEFAULT_MODEL: process.env.OPENROUTER_DEFAULT_MODEL,
+      OPENROUTER_API_KEY: import.meta.env.OPENROUTER_API_KEY,
+      OPENROUTER_API_URL: import.meta.env.OPENROUTER_API_URL,
+      OPENROUTER_DEFAULT_MODEL: import.meta.env.OPENROUTER_DEFAULT_MODEL,
     });
 
     if (!env.success) {
