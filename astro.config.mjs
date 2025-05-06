@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import path from "path";
 
 import react from "@astrojs/react";
@@ -37,4 +37,20 @@ export default defineConfig({
     mode: "directory",
     functionPerRoute: true,
   }),
+  env: {
+    schema: {
+      OPENROUTER_API_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENROUTER_API_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENROUTER_DEFAULT_MODEL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+    },
+  },
 });

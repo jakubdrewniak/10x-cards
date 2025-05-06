@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { OPENROUTER_API_KEY, OPENROUTER_API_URL, OPENROUTER_DEFAULT_MODEL } from "astro:env/server";
 
 // Schema for flashcard generation
 export const FLASHCARD_GENERATION_SCHEMA: JsonSchemaValue = {
@@ -63,13 +63,6 @@ interface OpenRouterConfig {
   systemMessage?: string;
 }
 
-// Environment validation schema
-const envSchema = z.object({
-  OPENROUTER_API_KEY: z.string().min(1),
-  OPENROUTER_API_URL: z.string().url(),
-  OPENROUTER_DEFAULT_MODEL: z.string().min(1),
-});
-
 export class OpenRouterService {
   private readonly apiKey: string;
   private readonly apiUrl: string;
@@ -85,21 +78,10 @@ export class OpenRouterService {
   private readonly errorLog: Error[] = [];
 
   constructor(config?: Partial<OpenRouterConfig>) {
-    // Validate environment variables
-    const env = envSchema.safeParse({
-      OPENROUTER_API_KEY: import.meta.env.OPENROUTER_API_KEY,
-      OPENROUTER_API_URL: import.meta.env.OPENROUTER_API_URL,
-      OPENROUTER_DEFAULT_MODEL: import.meta.env.OPENROUTER_DEFAULT_MODEL,
-    });
-
-    if (!env.success) {
-      throw new Error(`Environment validation failed: ${env.error.message}`);
-    }
-
     // Initialize service with config or environment variables
-    this.apiKey = config?.apiKey ?? env.data.OPENROUTER_API_KEY;
-    this.apiUrl = config?.apiUrl ?? env.data.OPENROUTER_API_URL;
-    this.defaultModelName = config?.defaultModelName ?? env.data.OPENROUTER_DEFAULT_MODEL;
+    this.apiKey = config?.apiKey ?? OPENROUTER_API_KEY;
+    this.apiUrl = config?.apiUrl ?? OPENROUTER_API_URL;
+    this.defaultModelName = config?.defaultModelName ?? OPENROUTER_DEFAULT_MODEL;
     this.defaultModelParameters = config?.defaultModelParameters ?? {
       temperature: 0.7,
       max_tokens: 1024,
