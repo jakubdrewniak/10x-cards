@@ -79,9 +79,10 @@ export class OpenRouterService {
 
   constructor(config?: Partial<OpenRouterConfig>) {
     // Initialize service with config or environment variables
-    this.apiKey = config?.apiKey ?? OPENROUTER_API_KEY;
-    this.apiUrl = config?.apiUrl ?? OPENROUTER_API_URL;
-    this.defaultModelName = config?.defaultModelName ?? OPENROUTER_DEFAULT_MODEL;
+    this.apiKey = import.meta.env.OPENROUTER_API_KEY ?? config?.apiKey ?? OPENROUTER_API_KEY;
+    this.apiUrl = import.meta.env.OPENROUTER_API_URL ?? config?.apiUrl ?? OPENROUTER_API_URL;
+    this.defaultModelName =
+      import.meta.env.OPENROUTER_DEFAULT_MODEL ?? config?.defaultModelName ?? OPENROUTER_DEFAULT_MODEL;
     this.defaultModelParameters = config?.defaultModelParameters ?? {
       temperature: 0.7,
       max_tokens: 1024,
