@@ -263,10 +263,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     return new Response(
       JSON.stringify({
-        // error: "Internal server error",
-        // message: "Failed to process generation request",
-        error: error instanceof Error ? error.name : "Unknown",
-        message: error instanceof Error ? error.message : String(error),
+        error: "Internal server error",
+        message: "Failed to process generation request",
       }),
       {
         status: 500,
