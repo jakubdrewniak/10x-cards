@@ -1,6 +1,7 @@
 # 10x-cards
 
 A web application for efficient flashcard creation and learning powered by AI.
+Try it out on [Cloudflare deploy](10x-cards-9ei.pages.dev).
 
 ## Table of Contents
 
